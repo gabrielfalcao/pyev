@@ -19,7 +19,7 @@ install:
 /tmp/pyev/libev$: make
 /tmp/pyev/libev$: sudo make install
 /tmp/pyev/libev$: cd ..
-/tmp/pyev$: wget http://pyev.googlecode.com/files/ev-0.1.0.tar.gz
+/tmp/pyev$: wget http://pyev.googlecode.com/files/ev-0.1.1.tar.gz
 /tmp/pyev$: tar -zxf ev-0.1.0.tar.gz
 /tmp/pyev$: cd ev-0.1.0/
 /tmp/pyev$: sudo python setup.py install
@@ -31,15 +31,15 @@ example:
 
 >>> import signal
 >>> import ev
->>> 
+>>>
 >>> def signal_cb(watcher, events):
 ...     print watcher.data
 ...     watcher.stop()
 ...     watcher.loop.unloop()
-... 
+...
 >>> def timer_cb(watcher, events):
 ...     print watcher.data
-... 
+...
 >>> l = ev.default_loop()
 >>> t = ev.Timer(0, 3, l, timer_cb, "hello world")
 >>> t.start()

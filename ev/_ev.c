@@ -3368,6 +3368,174 @@ static PyTypeObject EmbedType = {
 };
 
 
+/* AsyncType.tp_doc */
+PyDoc_STRVAR(Async_doc,
+"Async(loop, [callback=None, [data=None]])\n\n\
+In general, you cannot use a Loop from multiple threads or other asynchronous\n\
+sources such as signal handlers (as opposed to multiple event loops - those are\n\
+of course safe to use in different threads).\n\
+Sometimes, however, you need to wake up another event loop you do not control,\n\
+for example because it belongs to another thread. This is what Async watchers\n\
+do: as long as the Async watcher is active, you can signal it by calling\n\
+Async.send(), which is thread- and signal safe.\n\
+This functionality is very similar to Signal watchers, as signals, too, are\n\
+asynchronous in nature, and signals, too, will be compressed (i.e. the number\n\
+of callback invocations may be less than the number of ev_async_sent calls).\n\
+Unlike Signal watchers, Async works with any event loop, not just the default loop.");
+
+
+/* AsyncType.tp_dealloc */
+static void
+Async_dealloc(Async *self)
+{
+    _Watcher *_watcher = (_Watcher *)self;
+
+    if (_watcher->loop && &self->watcher) {
+        ev_async_stop(_watcher->loop->loop, &self->watcher);
+    }
+
+    _WatcherType.tp_dealloc((PyObject *)self);
+}
+
+
+/* AsyncType.tp_new */
+static PyObject *
+Async_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+{
+    Async *self = (Async *)_WatcherType.tp_new(type, args, kwargs);
+    if (self == NULL) {
+        return NULL;
+    }
+
+    _Watcher_new((_Watcher *)self, (ev_watcher *)&self->watcher);
+
+    return (PyObject *)self;
+}
+
+
+/* AsyncType.tp_init */
+static int
+Async_init(Async *self, PyObject *args, PyObject *kwargs)
+{
+    Loop *loop;
+    PyObject *callback = NULL;
+    PyObject *data = NULL;
+
+    static char *kwlist[] = {"loop", "callback", "data", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|OO:__init__", kwlist,
+                                     &loop, &callback, &data)) {
+        return -1;
+    }
+
+    if (_Watcher_init((_Watcher *)self, loop, callback, data, 0) < 0) {
+        return -1;
+    }
+
+    if (set_watcher((_Watcher *)self) < 0) {
+        return -1;
+    }
+
+    ev_async_set(&self->watcher);
+
+    return 0;
+}
+
+
+/* Async.start */
+static PyObject *
+Async_start(Async *self, PyObject *unused)
+{
+    ev_async_start(((_Watcher *)self)->loop->loop, &self->watcher);
+
+    Py_RETURN_NONE;
+}
+
+
+/* Async.stop */
+static PyObject *
+Async_stop(Async *self, PyObject *unused)
+{
+    ev_async_stop(((_Watcher *)self)->loop->loop, &self->watcher);
+
+    Py_RETURN_NONE;
+}
+
+
+/* Async.send */
+PyDoc_STRVAR(Async_send_doc,
+"send()\n\n\
+Sends/signals/activates the Async watcher, that is, feeds an EV_ASYNC event on\n\
+the watcher into the event loop. This call is safe to do in other threads,\n\
+signal or similar contexts.\n\
+This call incurs the overhead of a syscall only once per loop iteration, so\n\
+while the overhead might be noticable, it doesn't apply to repeated calls send().");
+
+static PyObject *
+Async_send(Async *self, PyObject *unused)
+{
+    ev_async_send(((_Watcher *)self)->loop->loop, &self->watcher);
+
+    Py_RETURN_NONE;
+}
+
+
+/* AsyncType.tp_methods */
+static PyMethodDef Async_methods[] = {
+    {"start", (PyCFunction)Async_start, METH_NOARGS,
+     _Watcher_start_doc},
+    {"stop", (PyCFunction)Async_stop, METH_NOARGS,
+     _Watcher_stop_doc},
+    {"send", (PyCFunction)Async_send, METH_NOARGS,
+     Async_send_doc},
+    {NULL}  /* Sentinel */
+};
+
+
+/* AsyncType */
+static PyTypeObject AsyncType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                        /*ob_size*/
+    "ev.Async",                               /*tp_name*/
+    sizeof(Async),                            /*tp_basicsize*/
+    0,                                        /*tp_itemsize*/
+    (destructor)Async_dealloc,                /*tp_dealloc*/
+    0,                                        /*tp_print*/
+    0,                                        /*tp_getattr*/
+    0,                                        /*tp_setattr*/
+    0,                                        /*tp_compare*/
+    0,                                        /*tp_repr*/
+    0,                                        /*tp_as_number*/
+    0,                                        /*tp_as_sequence*/
+    0,                                        /*tp_as_mapping*/
+    0,                                        /*tp_hash */
+    0,                                        /*tp_call*/
+    0,                                        /*tp_str*/
+    0,                                        /*tp_getattro*/
+    0,                                        /*tp_setattro*/
+    0,                                        /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Async_doc,                                /*tp_doc*/
+    0,                                        /*tp_traverse*/
+    0,                                        /*tp_clear*/
+    0,                                        /*tp_richcompare*/
+    0,                                        /*tp_weaklistoffset*/
+    0,                                        /*tp_iter*/
+    0,                                        /*tp_iternext*/
+    Async_methods,                            /*tp_methods*/
+    0,                                        /*tp_members*/
+    0,                                        /*tp_getsets*/
+    0,                                        /*tp_base*/
+    0,                                        /*tp_dict*/
+    0,                                        /*tp_descr_get*/
+    0,                                        /*tp_descr_set*/
+    0,                                        /*tp_dictoffset*/
+    (initproc)Async_init,                     /*tp_init*/
+    0,                                        /*tp_alloc*/
+    Async_new,                                /*tp_new*/
+};
+
+
 /* ev.__doc__ */
 PyDoc_STRVAR(_ev_doc,
 "Libev is an event loop: you register interest in certain events (such as\n\
@@ -3577,6 +3745,7 @@ init_ev(void)
     CheckType.tp_base = &_WatcherType;
     ForkType.tp_base = &_WatcherType;
     EmbedType.tp_base = &_WatcherType;
+    AsyncType.tp_base = &_WatcherType;
 
     /* checking types */
     if (PyType_Ready(&LoopType) < 0 ||
@@ -3592,7 +3761,8 @@ init_ev(void)
         PyType_Ready(&PrepareType) < 0 ||
         PyType_Ready(&CheckType) < 0 ||
         PyType_Ready(&ForkType) < 0 ||
-        PyType_Ready(&EmbedType) < 0) {
+        PyType_Ready(&EmbedType) < 0 ||
+        PyType_Ready(&AsyncType) < 0) {
         return;
     }
 
@@ -3627,6 +3797,8 @@ init_ev(void)
     PyModule_AddObject(_ev, "Fork", (PyObject *)&ForkType);
     Py_INCREF(&EmbedType);
     PyModule_AddObject(_ev, "Embed", (PyObject *)&EmbedType);
+    Py_INCREF(&AsyncType);
+    PyModule_AddObject(_ev, "Async", (PyObject *)&AsyncType);
 
     /* adding ev.Error exception */
     EvError = PyErr_NewException("ev.Error", NULL, NULL);
