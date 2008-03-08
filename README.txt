@@ -20,8 +20,8 @@ install:
 /tmp/pyev/libev$: sudo make install
 /tmp/pyev/libev$: cd ..
 /tmp/pyev$: wget http://pyev.googlecode.com/files/ev-0.1.1.tar.gz
-/tmp/pyev$: tar -zxf ev-0.1.0.tar.gz
-/tmp/pyev$: cd ev-0.1.0/
+/tmp/pyev$: tar -zxf ev-0.1.1.tar.gz
+/tmp/pyev$: cd ev-0.1.1/
 /tmp/pyev$: sudo python setup.py install
 /tmp/pyev$: cd ~
 ~$: sudo rm -rf /tmp/pyev
