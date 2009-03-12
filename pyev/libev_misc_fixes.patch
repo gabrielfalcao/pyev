@@ -1,0 +1,30 @@
+diff -urN libev-3.53/ev.c libev/ev.c
+--- libev-3.53/ev.c	2009-02-06 21:07:11.000000000 +0100
++++ libev/ev.c	2009-03-10 13:39:36.000000000 +0100
+@@ -363,7 +363,7 @@
+ 
+ #define MIN_TIMEJUMP  1. /* minimum timejump that gets detected (if monotonic clock available) */
+ #define MAX_BLOCKTIME 59.743 /* never wait longer than this time (to detect time jumps) */
+-/*#define CLEANUP_INTERVAL (MAX_BLOCKTIME * 5.) /* how often to try to free memory and re-check fds, TODO */
++//#define CLEANUP_INTERVAL (MAX_BLOCKTIME * 5.) /* how often to try to free memory and re-check fds, TODO */
+ 
+ #if __GNUC__ >= 4
+ # define expect(expr,value)         __builtin_expect ((expr),(value))
+@@ -678,7 +678,7 @@
+ #endif
+ 
+ #define array_free(stem, idx) \
+-  ev_free (stem ## s idx); stem ## cnt idx = stem ## max idx = 0;
++  ev_free (stem ## s idx); stem ## cnt idx = stem ## max idx = 0; stem ## s idx = NULL;
+ 
+ /*****************************************************************************/
+ 
+@@ -2184,7 +2184,7 @@
+   array_needsize (ANFD, anfds, anfdmax, fd + 1, array_init_zero);
+   wlist_add (&anfds[fd].head, (WL)w);
+ 
+-  fd_change (EV_A_ fd, w->events & EV_IOFDSET | 1);
++  fd_change (EV_A_ fd, (w->events & EV_IOFDSET) | 1);
+   w->events &= ~EV_IOFDSET;
+ 
+   EV_FREQUENT_CHECK;

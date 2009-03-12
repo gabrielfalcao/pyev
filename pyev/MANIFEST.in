@@ -1,0 +1,3 @@
+include CHANGES.txt
+include *.patch
+recursive-include src * *.*

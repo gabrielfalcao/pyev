@@ -1,0 +1,56 @@
+0.4.0, changes since 0.1.1:
+
+  misc:
+  - Pyev now embeds libev. The modifications to libev are really trivial,
+    in fact pyev should work with an unpatched libev. The patch applied to libev
+    is included in the source distribution for documentation.
+  - Better documentation overall (at least I think).
+  - Pyev is now published under a dual bsd/gpl scheme.
+
+  module:
+  - The module is (correctly) named pyev, not ev.
+  - Added EV_MINPRI, EV_MAXPRI const.
+  - Function pyev.version() has been renamed pyev.abi_version(), pyev.version()
+    now returns version strings for pyev and the underlying libev.
+
+  Loop:
+  - Methods backend() and is_default_loop() have been removed. They are replaced
+    by attributes 'backend' and 'default_loop' respectively.
+  - Method loop() now raises the last exception (if necessary) when returning.
+  - There are now two cases where the loop will unloop itself on error, both are
+    related to out of memory corner cases (sees Stat and Periodic).
+  - New method now_update() (from libev ev_now_update).
+  - New method verify() (from libev ev_loop_verify). Only present in debug
+    builds (NDEBUG undefined or EV_VERIFY defined and greater than 0).
+
+  watchers (common):
+  - Methods is_active() and is_pending() have been removed. They are replaced
+    by attributes 'active' and 'pending' respectively.
+  - The 'callback' argument is now mandatory and cannot be None (except for
+    Embed which accept None as 'callback').
+
+  Io:
+  - 'fd' argument can be either a python int, file object or socket objet (in
+    fact it can be any python object having a fileno() method returning a
+    valid system fd).
+
+  Periodic:
+  - Attribute 'at' has been removed. It is replaced by method at().
+  - If 'reschedule_cb' raises an error and pyev runs out of memory handling it,
+    the loop will unloop itself.
+
+  Child:
+  - Argument 'trace' is required to be a boolean.
+
+  Stat:
+  - Statdata attributes 'attr' and 'prev' are not generated on the fly anymore.
+    Instead the attributes are updated when you start the watcher, when you call
+    stat() and just before your callback is invoked. The last case introduce the
+    possibility of running out of memory while creating the new 'attr' attribute,
+    if that happens the loop will unloop itself.
+
+  Async:
+  - New attribute 'sent' (from libev ev_async_pending).
+
+
+
