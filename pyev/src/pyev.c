@@ -256,6 +256,20 @@ pyev_realloc(void *ptr, long size)
 }
 
 
+/* syscall errors will call Py_FatalError */
+static void
+pyev_syserr(const char *msg)
+{
+    PyGILState_Ensure();
+
+    if (PyErr_Occurred()) {
+        PyErr_Print();
+    }
+
+    Py_FatalError(msg);
+}
+
+
 /* check for a positive float */
 int
 check_positive_float(double value)
@@ -4783,6 +4797,7 @@ init_pyev(void)
 
     /* setup libev */
     ev_set_allocator(pyev_realloc);
+    ev_set_syserr_cb(pyev_syserr);
 
     return pyev;
 }
