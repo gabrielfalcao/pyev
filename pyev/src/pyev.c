@@ -243,16 +243,23 @@ PyModule_AddUnsignedIntConstant(PyObject *module, const char *name,
     PyModule_AddUnsignedIntConstant(module, #macro, macro)
 
 
-/* the memory allocator libev will use. */
+/* allocate memory from the Python heap */
 static void *
 pyev_realloc(void *ptr, long size)
 {
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    void *result = NULL;
+
     if (!size) {
         PyMem_Free(ptr);
-        return NULL;
+    }
+    else {
+        result = PyMem_Realloc(ptr ? ptr : NULL, (size_t)size);
     }
 
-    return PyMem_Realloc(ptr ? ptr : NULL, (size_t)size);
+    PyGILState_Release(gstate);
+
+    return result;
 }
 
 
@@ -2025,10 +2032,14 @@ operation triggered by the arguments.");
 static void
 periodic_reschedule_stop(struct ev_loop *loop, ev_prepare *prepare, int events)
 {
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
     ev_periodic_stop(loop, (ev_periodic *)prepare->data);
     ev_prepare_stop(loop, prepare);
 
-    free(prepare);
+    PyMem_Free(prepare);
+
+    PyGILState_Release(gstate);
 }
 
 
@@ -2068,7 +2079,7 @@ error:
     PyErr_WriteUnraisable(periodic->reschedule_cb);
 
     /* start an ev_prepare watcher that will stop this periodic */
-    prepare = malloc(sizeof(ev_prepare));
+    prepare = PyMem_Malloc(sizeof(ev_prepare));
     if (!prepare) {
         PyErr_NoMemory();
         ev_unloop(((_Watcher *)periodic)->loop->loop, EVUNLOOP_ALL);
