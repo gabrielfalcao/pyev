@@ -247,7 +247,9 @@ PyModule_AddUnsignedIntConstant(PyObject *module, const char *name,
 static void *
 pyev_realloc(void *ptr, long size)
 {
+#ifdef PYMALLOC_DEBUG
     PyGILState_STATE gstate = PyGILState_Ensure();
+#endif /* PYMALLOC_DEBUG */
     void *result = NULL;
 
     if (!size) {
@@ -257,7 +259,9 @@ pyev_realloc(void *ptr, long size)
         result = PyMem_Realloc(ptr ? ptr : NULL, (size_t)size);
     }
 
+#ifdef PYMALLOC_DEBUG
     PyGILState_Release(gstate);
+#endif /* PYMALLOC_DEBUG */
 
     return result;
 }
@@ -2032,14 +2036,18 @@ operation triggered by the arguments.");
 static void
 periodic_reschedule_stop(struct ev_loop *loop, ev_prepare *prepare, int events)
 {
-    PyGILState_STATE gstate = PyGILState_Ensure();
-
     ev_periodic_stop(loop, (ev_periodic *)prepare->data);
     ev_prepare_stop(loop, prepare);
 
+#ifdef PYMALLOC_DEBUG
+    PyGILState_STATE gstate = PyGILState_Ensure();
+#endif /* PYMALLOC_DEBUG */
+
     PyMem_Free(prepare);
 
+#ifdef PYMALLOC_DEBUG
     PyGILState_Release(gstate);
+#endif /* PYMALLOC_DEBUG */
 }
 
 
