@@ -4783,7 +4783,6 @@ init_pyev(void)
 
     /* setup libev */
     ev_set_allocator(pyev_realloc);
-    ev_set_syserr_cb(Py_FatalError);
 
     return pyev;
 }
