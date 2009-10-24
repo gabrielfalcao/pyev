@@ -243,30 +243,6 @@ PyModule_AddUnsignedIntConstant(PyObject *module, const char *name,
     PyModule_AddUnsignedIntConstant(module, #macro, macro)
 
 
-/* allocate memory from the Python heap */
-static void *
-pyev_realloc(void *ptr, long size)
-{
-#ifdef PYMALLOC_DEBUG
-    PyGILState_STATE gstate = PyGILState_Ensure();
-#endif /* PYMALLOC_DEBUG */
-    void *result = NULL;
-
-    if (!size) {
-        PyMem_Free(ptr);
-    }
-    else {
-        result = PyMem_Realloc(ptr ? ptr : NULL, (size_t)size);
-    }
-
-#ifdef PYMALLOC_DEBUG
-    PyGILState_Release(gstate);
-#endif /* PYMALLOC_DEBUG */
-
-    return result;
-}
-
-
 /* syscall errors will call Py_FatalError */
 static void
 pyev_syserr(const char *msg)
@@ -2039,15 +2015,7 @@ periodic_reschedule_stop(struct ev_loop *loop, ev_prepare *prepare, int events)
     ev_periodic_stop(loop, (ev_periodic *)prepare->data);
     ev_prepare_stop(loop, prepare);
 
-#ifdef PYMALLOC_DEBUG
-    PyGILState_STATE gstate = PyGILState_Ensure();
-#endif /* PYMALLOC_DEBUG */
-
-    PyMem_Free(prepare);
-
-#ifdef PYMALLOC_DEBUG
-    PyGILState_Release(gstate);
-#endif /* PYMALLOC_DEBUG */
+    free(prepare);
 }
 
 
@@ -2087,7 +2055,7 @@ error:
     PyErr_WriteUnraisable(periodic->reschedule_cb);
 
     /* start an ev_prepare watcher that will stop this periodic */
-    prepare = PyMem_Malloc(sizeof(ev_prepare));
+    prepare = malloc(sizeof(ev_prepare));
     if (!prepare) {
         PyErr_NoMemory();
         ev_unloop(((_Watcher *)periodic)->loop->loop, EVUNLOOP_ALL);
@@ -4815,7 +4783,6 @@ init_pyev(void)
     }
 
     /* setup libev */
-    ev_set_allocator(pyev_realloc);
     ev_set_syserr_cb(pyev_syserr);
 
     return pyev;
