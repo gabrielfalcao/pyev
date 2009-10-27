@@ -243,6 +243,25 @@ PyModule_AddUnsignedIntConstant(PyObject *module, const char *name,
     PyModule_AddUnsignedIntConstant(module, #macro, macro)
 
 
+/* I need to investigate how the 100 opcodes rule works out exactly for the GIL.
+   Until then, better safe than sorry :). */
+#define PYEV_GIL_ENSURE \
+    { \
+        PyGILState_STATE gstate = PyGILState_Ensure(); \
+        PyObject *err_type, *err_value, *err_traceback; \
+        int have_error = PyErr_Occurred() ? 1 : 0; \
+        if (have_error) { \
+            PyErr_Fetch(&err_type, &err_value, &err_traceback); \
+        }
+
+#define PYEV_GIL_RELEASE \
+        if (have_error) { \
+            PyErr_Restore(err_type, err_value, err_traceback); \
+        } \
+        PyGILState_Release(gstate); \
+    }
+
+
 /* syscall errors will call Py_FatalError */
 static void
 pyev_syserr(const char *msg)
@@ -315,7 +334,8 @@ LOOP' at libev documentation for more information about 'flags'.");
 static void
 loop_pending_cb(struct ev_loop *loop)
 {
-    PyGILState_STATE gstate = PyGILState_Ensure();
+    PYEV_GIL_ENSURE
+
     Loop *_loop = ev_userdata(loop);
     PyObject *result;
 
@@ -327,7 +347,7 @@ loop_pending_cb(struct ev_loop *loop)
         Py_DECREF(result);
     }
 
-    PyGILState_Release(gstate);
+    PYEV_GIL_RELEASE
 }
 
 
@@ -1012,7 +1032,8 @@ static PyTypeObject LoopType = {
 static void
 _watcher_cb(struct ev_loop *loop, ev_watcher *watcher, int events)
 {
-    PyGILState_STATE gstate = PyGILState_Ensure();
+    PYEV_GIL_ENSURE
+
     _Watcher *_watcher = watcher->data;
     PyObject *result;
 
@@ -1033,7 +1054,7 @@ _watcher_cb(struct ev_loop *loop, ev_watcher *watcher, int events)
         ev_embed_sweep(loop, (ev_embed *)watcher);
     }
 
-    PyGILState_Release(gstate);
+    PYEV_GIL_RELEASE
 }
 
 
@@ -2023,10 +2044,12 @@ periodic_reschedule_stop(struct ev_loop *loop, ev_prepare *prepare, int events)
 static double
 periodic_reschedule_cb(ev_periodic *watcher, double now)
 {
-    PyGILState_STATE gstate = PyGILState_Ensure();
+    double result;
+
+    PYEV_GIL_ENSURE
+
     Periodic *periodic = watcher->data;
     PyObject *py_result;
-    double result;
     ev_prepare *prepare;
 
     py_result = PyObject_CallFunctionObjArgs(periodic->reschedule_cb, periodic,
@@ -2057,8 +2080,7 @@ error:
     /* start an ev_prepare watcher that will stop this periodic */
     prepare = malloc(sizeof(ev_prepare));
     if (!prepare) {
-        PyErr_NoMemory();
-        ev_unloop(((_Watcher *)periodic)->loop->loop, EVUNLOOP_ALL);
+        Py_FatalError("Memory could not be allocated.");
     }
     else {
         prepare->data = (void *)watcher;
@@ -2071,7 +2093,7 @@ error:
 finish:
     Py_XDECREF(py_result);
 
-    PyGILState_Release(gstate);
+    PYEV_GIL_RELEASE
 
     return result;
 }
