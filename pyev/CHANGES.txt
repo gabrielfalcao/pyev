@@ -1,8 +1,10 @@
 Todo's
 ======
+
 * port the doc to rst (Sphinx?)
 * make a unittest test suite out of my local ones
 * provide meaningful examples of use
+* support win32?
 
 
 
@@ -42,6 +44,12 @@ Timer:
 Signal:
 
 - No need for a default loop anymore.
+
+
+Periodic:
+
+- If 'reschedule_cb' raises an error and pyev runs out of memory handling it,
+  the program will abort.
 
 
 

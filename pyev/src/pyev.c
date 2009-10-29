@@ -59,10 +59,10 @@
 /* set EV_VERIFY for a debug build */
 #ifndef EV_VERIFY
 #ifdef Py_DEBUG
-#define EV_VERIFY 3
-#ifdef NDEBUG //to be sure
+#ifdef NDEBUG //to be absolutely sure
 #undef NDEBUG
 #endif /* NDEBUG */
+#define EV_VERIFY 3
 #endif /* Py_DEBUG */
 #endif /* !EV_VERIFY */
 

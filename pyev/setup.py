@@ -51,7 +51,7 @@ from sys import argv
 from subprocess import check_call
 from distutils.command.build_ext import build_ext as _build_ext
 from distutils.core import setup, Extension
-        
+
 
 curr_ver = python_version()
 min_vers = {2: "2.6.2", 3: "3.1.1"}
@@ -73,13 +73,13 @@ libev_version = search("AM_INIT_AUTOMAKE\(libev,(\S+)\)",
 
 class build_ext(_build_ext):
     def finalize_options(self):
+        _build_ext.finalize_options(self)
         if "sdist" not in argv:
             check_call(join(libev_dir, "configure"), cwd=libev_dir, shell=True)
             libev_config = open(join(libev_dir, "config.h"), "r").read()
             self.libraries = [l.lower() for l in
                               set(findall("#define HAVE_LIB(\S+) 1",
                                           libev_config))]
-        _build_ext.finalize_options(self)
 
 
 setup(
