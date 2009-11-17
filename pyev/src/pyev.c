@@ -1219,7 +1219,10 @@ Stops the watcher if active, and clears the pending status (whether the watcher\
 was active or not).\n\
 It is possible that stopped watchers are pending - for example, non-repeating\n\
 timers are being stopped when they become pending - but calling stop() ensures\n\
-that the watcher is neither active nor pending.");
+that the watcher is neither active nor pending.\n\
+\n\
+Note:\n\
+Watchers are automatically stopped when they are garbage-collected.");
 
 
 /* _WatcherType.tp_methods */
