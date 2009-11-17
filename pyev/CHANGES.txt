@@ -9,6 +9,16 @@ Todo's
 
 
 
+svn trunk
+=========
+
+watchers (common):
+
+- Issue #6: on Python 2 the priority attribute was supposed to be an int but
+  accepted only longs.
+
+
+
 Release 0.5.0-3.8
 =================
 

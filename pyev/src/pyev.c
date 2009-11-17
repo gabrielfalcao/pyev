@@ -1374,7 +1374,11 @@ _Watcher_priority_set(_Watcher *self, PyObject *value, void *closure)
         return -1;
     }
 
+#if PY_MAJOR_VERSION >= 3
     if (!PyLong_Check(value)) {
+#else
+    if (!PyInt_Check(value)) {
+#endif
         PyErr_SetString(PyExc_TypeError, "an integer is required");
         return -1;
     }

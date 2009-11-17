@@ -63,7 +63,7 @@ if platform_name != "posix":
     raise SystemExit("Aborted: platform '{0}' not supported".format(platform_name))
 
 
-pyev_version = "0.5.0"
+pyev_version = "0.5.1"
 pyev_description = open(abspath("README.txt"), "r").read()
 libev_dir = abspath("src/libev")
 libev_configure_ac = open(join(libev_dir, "configure.ac"), "r").read()
