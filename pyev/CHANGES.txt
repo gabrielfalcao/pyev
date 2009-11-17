@@ -5,12 +5,16 @@ Todo's
 * make a unittest test suite out of my local ones
 * provide meaningful examples of use
 * support win32?
-* fix possible leak in watcher dealloc (callbacks)
 
 
 
 svn trunk
 =========
+
+misc:
+
+- better gc support (should fix circular reference cases).
+
 
 watchers (common):
 

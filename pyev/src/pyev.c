@@ -401,6 +401,7 @@ static int
 Loop_traverse(Loop *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->data);
+    Py_VISIT(self->pending_cb);
 
     return 0;
 }
@@ -411,6 +412,7 @@ static int
 Loop_clear(Loop *self)
 {
     Py_CLEAR(self->data);
+    Py_CLEAR(self->pending_cb);
 
     return 0;
 }
@@ -421,8 +423,6 @@ static void
 Loop_dealloc(Loop *self)
 {
     Loop_clear(self);
-
-    Py_XDECREF(self->pending_cb);
 
     if (self->loop) {
         if (ev_is_default_loop(self->loop)) {
@@ -1076,6 +1076,8 @@ static int
 _Watcher_traverse(_Watcher *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->data);
+    Py_VISIT(self->callback);
+    Py_VISIT(self->loop);
 
     return 0;
 }
@@ -1086,6 +1088,8 @@ static int
 _Watcher_clear(_Watcher *self)
 {
     Py_CLEAR(self->data);
+    Py_CLEAR(self->callback);
+    Py_CLEAR(self->loop);
 
     return 0;
 }
@@ -1096,9 +1100,6 @@ static void
 _Watcher_dealloc(_Watcher *self)
 {
     _Watcher_clear(self);
-
-    Py_XDECREF(self->callback);
-    Py_XDECREF(self->loop);
 
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
@@ -2129,13 +2130,33 @@ set_periodic(Periodic *self, double offset, double interval,
 }
 
 
+/* PeriodicType.tp_traverse */
+static int
+Periodic_traverse(Periodic *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->reschedule_cb);
+
+    return 0;
+}
+
+
+/* PeriodicType.tp_clear */
+static int
+Periodic_clear(Periodic *self)
+{
+    Py_CLEAR(self->reschedule_cb);
+
+    return 0;
+}
+
+
 /* PeriodicType.tp_dealloc */
 static void
 Periodic_dealloc(Periodic *self)
 {
     _Watcher *_watcher = (_Watcher *)self;
 
-    Py_XDECREF(self->reschedule_cb);
+    Periodic_clear(self);
 
     if (_watcher->loop && &self->periodic) {
         ev_periodic_stop(_watcher->loop->loop, &self->periodic);
@@ -2437,10 +2458,10 @@ static PyTypeObject PeriodicType = {
     0,                                        /*tp_getattro*/
     0,                                        /*tp_setattro*/
     0,                                        /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     Periodic_doc,                             /*tp_doc*/
-    0,                                        /*tp_traverse*/
-    0,                                        /*tp_clear*/
+    (traverseproc)Periodic_traverse,          /*tp_traverse*/
+    (inquiry)Periodic_clear,                  /*tp_clear*/
     0,                                        /*tp_richcompare*/
     0,                                        /*tp_weaklistoffset*/
     0,                                        /*tp_iter*/
@@ -3832,13 +3853,33 @@ set_embed(Embed *self, Loop *other)
 }
 
 
+/* EmbedType.tp_traverse */
+static int
+Embed_traverse(Embed *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->other);
+
+    return 0;
+}
+
+
+/* EmbedType.tp_clear */
+static int
+Embed_clear(Embed *self)
+{
+    Py_CLEAR(self->other);
+
+    return 0;
+}
+
+
 /* EmbedType.tp_dealloc */
 static void
 Embed_dealloc(Embed *self)
 {
     _Watcher *_watcher = (_Watcher *)self;
 
-    Py_XDECREF(self->other);
+    Embed_clear(self);
 
     if (_watcher->loop && &self->embed) {
         ev_embed_stop(_watcher->loop->loop, &self->embed);
@@ -4027,10 +4068,10 @@ static PyTypeObject EmbedType = {
     0,                                        /*tp_getattro*/
     0,                                        /*tp_setattro*/
     0,                                        /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     Embed_doc,                                /*tp_doc*/
-    0,                                        /*tp_traverse*/
-    0,                                        /*tp_clear*/
+    (traverseproc)Embed_traverse,             /*tp_traverse*/
+    (inquiry)Embed_clear,                     /*tp_clear*/
     0,                                        /*tp_richcompare*/
     0,                                        /*tp_weaklistoffset*/
     0,                                        /*tp_iter*/
