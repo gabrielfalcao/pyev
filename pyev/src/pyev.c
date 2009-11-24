@@ -1037,7 +1037,17 @@ _watcher_cb(struct ev_loop *loop, ev_watcher *watcher, int events)
     _Watcher *_watcher = watcher->data;
     PyObject *result;
 
-    if ((events & EV_STAT) && update_stat((Stat *)_watcher)) {
+    if (events & EV_ERROR) {
+        if (errno) {
+            // there's a high probability it is related
+            PyErr_SetFromErrno(PyExc_OSError);
+        }
+        else {
+            PyErr_SetString(Error, "unspecified libev error");
+        }
+        ev_unloop(loop, EVUNLOOP_ALL);
+    }
+    else if ((events & EV_STAT) && update_stat((Stat *)_watcher)) {
         ev_unloop(loop, EVUNLOOP_ALL);
     }
     else if (_watcher->callback != Py_None) {

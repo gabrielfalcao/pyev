@@ -20,6 +20,7 @@ watchers (common):
 
 - Issue #6: on Python 2 the priority attribute was supposed to be an int but
   accepted only longs.
+- Unloop the loop and raise if EV_ERROR is received in callback.
 
 
 
