@@ -1035,7 +1035,7 @@ _watcher_cb(struct ev_loop *loop, ev_watcher *watcher, int events)
     PYEV_GIL_ENSURE
 
     _Watcher *_watcher = watcher->data;
-    PyObject *result;
+    PyObject *py_result, *py_events;
 
     if (events & EV_ERROR) {
         if (errno) {
@@ -1051,13 +1051,20 @@ _watcher_cb(struct ev_loop *loop, ev_watcher *watcher, int events)
         ev_unloop(loop, EVUNLOOP_ALL);
     }
     else if (_watcher->callback != Py_None) {
-        result = PyObject_CallFunctionObjArgs(_watcher->callback, _watcher,
-                     PyLong_FromUnsignedLong(events), NULL);
-        if (!result) {
-            PyErr_WriteUnraisable(_watcher->callback);
+        py_events = PyLong_FromUnsignedLong(events);
+        if (!py_events) {
+            pyev_syserr("Cannot convert int to PyLong");
         }
         else {
-            Py_DECREF(result);
+            py_result = PyObject_CallFunctionObjArgs(_watcher->callback,
+                                                     _watcher, py_events, NULL);
+            if (!py_result) {
+                PyErr_WriteUnraisable(_watcher->callback);
+            }
+            else {
+                Py_DECREF(py_result);
+            }
+            Py_DECREF(py_events);
         }
     }
     else if (events & EV_EMBED) {
@@ -2067,26 +2074,28 @@ periodic_reschedule_cb(ev_periodic *watcher, double now)
     PYEV_GIL_ENSURE
 
     Periodic *periodic = watcher->data;
-    PyObject *py_result;
+    PyObject *py_result, *py_now;
     ev_prepare *prepare;
 
+    py_now = PyFloat_FromDouble(now);
+    if (!py_now) {
+        pyev_syserr("Cannot convert double to PyFloat");
+    }
     py_result = PyObject_CallFunctionObjArgs(periodic->reschedule_cb, periodic,
-                                             PyFloat_FromDouble(now), NULL);
+                                             py_now, NULL);
     if (!py_result) {
         goto error;
     }
-    else if (!PyFloat_Check(py_result)) {
+    if (!PyFloat_Check(py_result)) {
         PyErr_SetString(PyExc_TypeError, "reschedule_cb must return a float");
         goto error;
     }
-    else {
-        result = PyFloat_AS_DOUBLE(py_result);
-        if (result < now) {
-            PyErr_SetString(Error, "returned value must be >= 'now' param");
-            goto error;
-        }
-        goto finish;
+    result = PyFloat_AS_DOUBLE(py_result);
+    if (result < now) {
+        PyErr_SetString(Error, "returned value must be >= 'now' param");
+        goto error;
     }
+    goto finish;
 
 error:
     /* inform the user we're going to stop this periodic */
@@ -2100,16 +2109,15 @@ error:
     if (!prepare) {
         Py_FatalError("Memory could not be allocated.");
     }
-    else {
-        prepare->data = (void *)watcher;
-        ev_prepare_init(prepare, periodic_reschedule_stop);
-        ev_prepare_start(((_Watcher *)periodic)->loop->loop, prepare);
-    }
+    prepare->data = (void *)watcher;
+    ev_prepare_init(prepare, periodic_reschedule_stop);
+    ev_prepare_start(((_Watcher *)periodic)->loop->loop, prepare);
 
     result = now + 1e30;
 
 finish:
     Py_XDECREF(py_result);
+    Py_XDECREF(py_now);
 
     PYEV_GIL_RELEASE
 
