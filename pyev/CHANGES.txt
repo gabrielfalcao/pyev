@@ -11,6 +11,11 @@ Todo's
 svn trunk
 =========
 
+
+
+Release 0.5.3-3.8
+=================
+
 misc:
 
 - better gc support (should fix circular reference cases).
