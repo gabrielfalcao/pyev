@@ -57,7 +57,7 @@ new_Loop(PyTypeObject *type, PyObject *args, PyObject *kwargs, char default_loop
 
     static char *kwlist[] = {"flags", "pending_cb", "data", "debug", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|IOOO!:default_loop", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|IOOO!:__new__", kwlist,
             &flags, &pending_cb, &data, &PyBool_Type, &debug)) {
         return NULL;
     }
