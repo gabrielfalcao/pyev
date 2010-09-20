@@ -6,10 +6,18 @@
 int
 set_Signal(Signal *self, int signum)
 {
+    struct ev_loop *loop = ((Watcher *)self)->loop->loop;
+
     if (signum <= 0 || signum >= EV_NSIG) {
         PyErr_SetString(Error, "illegal signal number");
         return -1;
     }
+    if (signals[signum - 1].loop && signals[signum - 1].loop != loop) {
+        PyErr_SetString(Error, "the same signal must not be attached to two "
+            "different loops");
+        return -1;
+    }
+    signals[signum - 1].loop = loop;
     ev_signal_set(&self->signal, signum);
     return 0;
 }
@@ -52,8 +60,7 @@ Signal_tp_init(Signal *self, PyObject *args, PyObject *kwargs)
             &signum, &LoopType, &loop, &callback, &data)) {
         return -1;
     }
-    //XXX: shoul we allow other loop (need to change set_Signal)
-    if (init_Watcher((Watcher *)self, loop, 1, callback, NULL, data)) {
+    if (init_Watcher((Watcher *)self, loop, 0, callback, NULL, data)) {
         return -1;
     }
     if (set_Signal(self, signum)) {

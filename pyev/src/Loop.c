@@ -12,7 +12,6 @@ report_error_Loop(Loop *self, PyObject *context)
     else {
         PyErr_Print();
     }
-
 }
 
 void
