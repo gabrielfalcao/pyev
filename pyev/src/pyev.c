@@ -216,6 +216,7 @@ static PyTypeObject AsyncType;
 #define PyString_FromFormat PyUnicode_FromFormat
 #define PyInt_FromLong PyLong_FromLong
 #define PyInt_FromUnsignedLong PyLong_FromUnsignedLong
+#define PyString_FromPath PyUnicode_DecodeFSDefault
 #else
 PyObject *
 PyInt_FromUnsignedLong(unsigned long value)
@@ -225,6 +226,7 @@ PyInt_FromUnsignedLong(unsigned long value)
     }
     return PyInt_FromLong((long)value);
 }
+#define PyString_FromPath PyString_FromString
 #endif /* PY_MAJOR_VERSION >= 3 */
 
 

@@ -160,10 +160,25 @@ Stat_tp_init(Stat *self, PyObject *args, PyObject *kwargs)
     static char *kwlist[] = {"path", "interval",
                              "loop", "callback", "data", NULL};
 
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pypath = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O&dO!O|O:__init__", kwlist,
+            PyUnicode_FSConverter, &pypath, &interval, &LoopType, &loop,
+            &callback, &data)) {
+        return -1;
+    }
+    path = PyBytes_AS_STRING(pypath);
+    Py_DECREF(pypath); //XXX: this is strange: the rest should fail, but it doesn't!
+    if (!path) {
+        return -1;
+    }
+#else
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "sdO!O|O:__init__", kwlist,
             &path, &interval, &LoopType, &loop, &callback, &data)) {
         return -1;
     }
+#endif /* PY_MAJOR_VERSION >= 3 */
     if (init_Watcher((Watcher *)self, loop, 0, callback, NULL, data)) {
         return -1;
     }
@@ -182,9 +197,23 @@ Stat_set(Stat *self, PyObject *args)
     const char *path;
     double interval;
 
+#if PY_MAJOR_VERSION >= 3
+    PyObject *pypath = NULL;
+
+    if (!PyArg_ParseTuple(args, "O&d:set", PyUnicode_FSConverter, &pypath,
+            &interval)) {
+        return NULL;
+    }
+    path = PyBytes_AS_STRING(pypath);
+    Py_DECREF(pypath); //XXX: this is strange: the rest should fail, but it doesn't!
+    if (!path) {
+        return NULL;
+    }
+#else
     if (!PyArg_ParseTuple(args, "sd:set", &path, &interval)) {
         return NULL;
     }
+#endif /* PY_MAJOR_VERSION >= 3 */
     if (!inactive_Watcher((Watcher *)self)) {
         return NULL;
     }
@@ -223,9 +252,26 @@ static PyMethodDef Stat_tp_methods[] = {
 /* StatType.tp_members */
 static PyMemberDef Stat_tp_members[] = {
     {"interval", T_DOUBLE, offsetof(Stat, stat.interval), READONLY, ""},
-    {"path", T_STRING, offsetof(Stat, stat.path), READONLY, ""},
     {"attr", T_OBJECT, offsetof(Stat, attr), READONLY, ""},
     {"prev", T_OBJECT, offsetof(Stat, prev), READONLY, ""},
+    {NULL}  /* Sentinel */
+};
+
+
+/* Stat.path */
+PyDoc_STRVAR(Stat_path_doc,
+"");
+
+static PyObject *
+Stat_path_get(Stat *self, void *closure)
+{
+    return PyString_FromPath(self->stat.path);
+}
+
+
+/* StatType.tp_getsets */
+static PyGetSetDef Stat_tp_getsets[] = {
+    {"path", (getter)Stat_path_get, NULL, Stat_path_doc, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -261,7 +307,7 @@ static PyTypeObject StatType = {
     0,                                        /*tp_iternext*/
     Stat_tp_methods,                          /*tp_methods*/
     Stat_tp_members,                          /*tp_members*/
-    0,                                        /*tp_getsets*/
+    Stat_tp_getsets,                          /*tp_getsets*/
     0,                                        /*tp_base*/
     0,                                        /*tp_dict*/
     0,                                        /*tp_descr_get*/
