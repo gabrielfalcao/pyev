@@ -130,7 +130,6 @@ Loop_tp_clear(Loop *self)
 static void
 Loop_tp_dealloc(Loop *self)
 {
-    printf("Loop_tp_dealloc\n");
     Loop_tp_clear(self);
     if (self->loop) {
         if (ev_is_default_loop(self->loop)) {
