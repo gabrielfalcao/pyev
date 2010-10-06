@@ -79,6 +79,8 @@
 
 /* Error */
 static PyObject *Error;
+PyDoc_STRVAR(Error_doc,
+"Raised when an error specific to pyev happens.");
 
 
 /* Loop */
@@ -214,6 +216,7 @@ static PyTypeObject AsyncType;
 
 #if PY_MAJOR_VERSION >= 3
 #define PyString_FromFormat PyUnicode_FromFormat
+#define PyString_FromString PyUnicode_FromString
 #define PyInt_FromLong PyLong_FromLong
 #define PyInt_FromUnsignedLong PyLong_FromUnsignedLong
 #define PyString_FromPath PyUnicode_DecodeFSDefault
@@ -249,6 +252,30 @@ PyNum_AsInt(PyObject *pyvalue)
         return -1;
     }
     return (int)value;
+}
+
+
+/* Create and document an exception */
+PyObject *
+PyErr_Create(char *name, const char *doc, PyObject *base)
+{
+    PyObject *dict = NULL;
+    PyObject *_doc;
+
+    if (doc) {
+        dict = PyDict_New();
+        if (!dict) {
+            return NULL;
+        }
+        _doc = PyString_FromString(doc);
+        if (!_doc || PyDict_SetItemString(dict, "__doc__", _doc)) {
+            Py_XDECREF(_doc);
+            Py_DECREF(dict);
+            return NULL;
+        }
+        Py_DECREF(_doc);
+    }
+    return PyErr_NewException(name, base, dict);
 }
 
 
@@ -393,7 +420,31 @@ update_Stat(Stat *self);
 
 /* pyev_module.m_doc */
 PyDoc_STRVAR(pyev_m_doc,
-"");
+"pyev is Python libev interface.\n\
+\n\
+libev is an event loop: you register interest in certain events (such as a\n\
+file descriptor being readable or a timeout occurring), and it will manage\n\
+these event sources and provide your program with events. To do this, it\n\
+must take more or less complete control over your process (or thread) by\n\
+executing the event loop handler, and will then communicate events via a\n\
+callback mechanism. You register interest in certain events by registering\n\
+so-called event watchers, which you initialise with the details of the\n\
+event, and then hand it over to libev by starting the watcher.\n\
+\n\
+libev supports select, poll, the Linux-specific epoll, the BSD-specific\n\
+kqueue and the Solaris-specific event port mechanisms for file descriptor\n\
+events (Io), the Linux inotify interface (for Stat), Linux eventfd and\n\
+signalfd (for faster and cleaner inter-thread wakeup (Async) and signal\n\
+handling (Signal)), relative timers (Timer), absolute timers with\n\
+customised rescheduling (Periodic), synchronous signals (Signal), process\n\
+status change events (Child), and event watchers dealing with the event\n\
+loop mechanism itself (Idle, Embed, Prepare and Check watchers) as well as\n\
+file watchers (Stat) and even limited support for fork events (Fork).\n\
+\n\
+libev is written and maintained by Marc Lehmann.\n\
+\n\
+    See also: libev’s documentation at\n\
+      <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>.");
 
 
 /* pyev.version() -> (str, str) */
@@ -496,7 +547,7 @@ pyev_default_loop(PyObject *module, PyObject *args, PyObject *kwargs)
         }
     }
     else {
-        if (PyErr_WarnEx(PyExc_UserWarning, "returning the 'default_loop' "
+        if (PyErr_WarnEx(PyExc_UserWarning, "returning the 'default loop' "
                 "created earlier, arguments ignored (if provided).", 1)) {
             return NULL;
         }
@@ -592,7 +643,7 @@ init_pyev(void)
         return NULL;
     }
     /* pyev.Error */
-    Error = PyErr_NewException("pyev.Error", NULL, NULL);
+    Error = PyErr_Create("pyev.Error", Error_doc, NULL);
     if (!Error || PyModule_AddObject(pyev, "Error", Error)) {
         Py_XDECREF(Error);
         goto fail;

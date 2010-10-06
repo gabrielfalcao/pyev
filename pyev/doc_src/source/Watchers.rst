@@ -8,9 +8,16 @@
 Watchers
 ========
 
-.. seealso::
-    `ANATOMY OF A WATCHER
-    <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod#ANATOMY_OF_A_WATCHER>`_
+.. class:: Watcher
+
+    .. warning::
+        TODO.
+
+    TODO.
+
+    .. seealso::
+        `ANATOMY OF A WATCHER
+        <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod#ANATOMY_OF_A_WATCHER>`_
 
 
 Watcher types

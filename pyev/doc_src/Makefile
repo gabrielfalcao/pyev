@@ -37,10 +37,15 @@ help:
 clean:
 	-rm -rf $(BUILDDIR) $(HTMLDIR)/* $(HTMLDIR)/.buildinfo
 
-html:
+pyevdoc:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(HTMLDIR)
 	@echo
 	@echo "Build finished. The HTML pages are in $(HTMLDIR)."
+
+html:
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml

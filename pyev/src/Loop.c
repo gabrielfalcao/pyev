@@ -51,13 +51,16 @@ new_Loop(PyTypeObject *type, PyObject *args, PyObject *kwargs, char default_loop
     PyObject *pending_cb = Py_None;
     PyObject *data = NULL;
     PyObject *debug = Py_False;
+    double io_interval = 0.0, timeout_interval = 0.0;
     Loop *self;
     PyObject *tmp;
 
-    static char *kwlist[] = {"flags", "pending_cb", "data", "debug", NULL};
+    static char *kwlist[] = {"flags", "pending_cb", "data", "debug",
+                             "io_interval", "timeout_interval", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|IOOO!:__new__", kwlist,
-            &flags, &pending_cb, &data, &PyBool_Type, &debug)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|IOOO!dd:__new__", kwlist,
+            &flags, &pending_cb, &data, &PyBool_Type, &debug,
+            &io_interval, &timeout_interval)) {
         return NULL;
     }
     /* self */
@@ -77,8 +80,9 @@ new_Loop(PyTypeObject *type, PyObject *args, PyObject *kwargs, char default_loop
         Py_DECREF(self);
         return NULL;
     }
-    /* self->pending_cb */
-    if (Loop_pending_cb_set(self, pending_cb, NULL)) {
+    if (Loop_pending_cb_set(self, pending_cb, NULL) ||
+        !positive_float(io_interval) ||
+        !positive_float(timeout_interval)) {
         Py_DECREF(self);
         return NULL;
     }
@@ -92,6 +96,8 @@ new_Loop(PyTypeObject *type, PyObject *args, PyObject *kwargs, char default_loop
     /* self->debug */
     self->debug = (debug == Py_True) ? 1 : 0;
     /* done */
+    ev_set_io_collect_interval(self->loop, io_interval);
+    ev_set_timeout_collect_interval(self->loop, timeout_interval);
     ev_set_userdata(self->loop, (void *)self);
     return self;
 }

@@ -11,6 +11,15 @@ Release 0.6.0-4.00
 ==================
 
 
+:class:`~pyev.Loop`:
+
+- Issue #10: Added debug parameter/attribute.
+- Added io_interval and timeout_interval parameters.
+- Methods pending_count() and depth() are replaced by attributes with the same
+  names.
+- Method count() is replaced by attribute iteration.
+
+
 
 Release 0.5.3-3.8
 =================
@@ -20,7 +29,7 @@ misc:
 - better gc support (should fix circular reference cases).
 
 
-:ref:`Watchers`:
+:class:`~pyev.Watcher`:
 
 - Issue #6: on Python 2 the priority attribute was supposed to be an int but
   accepted only longs.
@@ -28,7 +37,7 @@ misc:
 - Issue #7: fix memory leak in callback.
 
 
-:class:`Periodic`:
+:class:`~pyev.Periodic`:
 
 - fix memory leak in reschedule callback.
 
@@ -50,7 +59,7 @@ misc:
 - Added EV_IO, EV_TIMER, EV_CUSTOM constants.
 
 
-:class:`Loop`:
+:class:`~pyev.Loop`:
 
 - New method depth() (from libev ev_loop_depth).
 - New methods suspend()/resume() (from libev ev_suspend/ev_resume).
@@ -62,17 +71,17 @@ misc:
   default value if not in a debug build).
 
 
-:class:`Timer`:
+:class:`~pyev.Timer`:
 
 - New method remaining() (from libev ev_timer_remaining).
 
 
-:class:`Signal`:
+:class:`~pyev.Signal`:
 
 - No need for a default loop anymore.
 
 
-:class:`Periodic`:
+:class:`~pyev.Periodic`:
 
 - If 'reschedule_cb' raises an error and pyev runs out of memory handling it,
   the program will abort.
@@ -99,7 +108,7 @@ misc:
   now returns version strings for pyev and the underlying libev.
 
 
-:class:`Loop`:
+:class:`~pyev.Loop`:
 
 - Methods backend() and is_default_loop() have been removed. They are replaced
   by attributes 'backend' and 'default_loop' respectively.
@@ -111,7 +120,7 @@ misc:
   builds (NDEBUG undefined or EV_VERIFY defined and greater than 0).
 
 
-:ref:`Watchers`:
+:class:`~pyev.Watcher`:
 
 - Methods is_active() and is_pending() have been removed. They are replaced
   by attributes 'active' and 'pending' respectively.
@@ -119,26 +128,26 @@ misc:
   Embed which accept None as 'callback').
 
 
-:class:`Io`:
+:class:`~pyev.Io`:
 
 - 'fd' argument can be either a python int, file object or socket objet (in
   fact it can be any python object having a fileno() method returning a
   valid system fd).
 
 
-:class:`Periodic`:
+:class:`~pyev.Periodic`:
 
 - Attribute 'at' has been removed. It is replaced by method at().
 - If 'reschedule_cb' raises an error and pyev runs out of memory handling it,
   the loop will unloop itself.
 
 
-:class:`Child`:
+:class:`~pyev.Child`:
 
 - Argument 'trace' is required to be a boolean.
 
 
-:class:`Stat`:
+:class:`~pyev.Stat`:
 
 - Statdata attributes 'attr' and 'prev' are not generated on the fly anymore.
   Instead the attributes are updated when you start the watcher, when you call
@@ -147,7 +156,7 @@ misc:
   if that happens the loop will unloop itself.
 
 
-:class:`Async`:
+:class:`~pyev.Async`:
 
 - New attribute 'sent' (from libev ev_async_pending).
 

@@ -4,7 +4,4 @@
 .. title:: Changes
 
 
-.. currentmodule:: pyev
-
-
 .. include:: ../../CHANGES.txt
