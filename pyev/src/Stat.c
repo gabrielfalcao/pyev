@@ -3,24 +3,24 @@
 *******************************************************************************/
 
 static PyStructSequence_Field Statdata_fields[] = {
-    {"dev", "device"},
-    {"rdev", "device type"},
-    {"ino", "inode"},
-    {"size", "total size, in bytes"},
-    {"nlink", "number of hard links"},
-    {"mode", "protection bits"},
-    {"uid", "user ID of owner"},
-    {"gid", "group ID of owner"},
-    {"atime", "time of last access"},
-    {"mtime", "time of last modification"},
-    {"ctime", "time of last status change"},
+    {"dev",   Statdata_dev_doc},
+    {"rdev",  Statdata_rdev_doc},
+    {"ino",   Statdata_ino_doc},
+    {"size",  Statdata_size_doc},
+    {"nlink", Statdata_nlink_doc},
+    {"mode",  Statdata_mode_doc},
+    {"uid",   Statdata_uid_doc},
+    {"gid",   Statdata_gid_doc},
+    {"atime", Statdata_atime_doc},
+    {"mtime", Statdata_mtime_doc},
+    {"ctime", Statdata_ctime_doc},
     {NULL}  /* Sentinel */
 };
 
 
 static PyStructSequence_Desc Statdata_desc = {
     "pyev.Statdata",                          /*name*/
-    "Statdata object",                        /*doc*/
+    Statdata_doc,                             /*doc*/
     Statdata_fields,                          /*fields*/
     11,                                       /*n_in_sequence*/
 };
@@ -120,11 +120,6 @@ update_Stat(Stat *self)
 * StatType
 *******************************************************************************/
 
-/* StatType.tp_doc */
-PyDoc_STRVAR(Stat_tp_doc,
-"Stat(path, interval, loop, callback[, data=None])");
-
-
 /* StatType.tp_dealloc */
 static void
 Stat_tp_dealloc(Stat *self)
@@ -188,9 +183,6 @@ Stat_tp_init(Stat *self, PyObject *args, PyObject *kwargs)
 
 
 /* Stat.set(path, interval) */
-PyDoc_STRVAR(Stat_set_doc,
-"");
-
 static PyObject *
 Stat_set(Stat *self, PyObject *args)
 {
@@ -223,9 +215,6 @@ Stat_set(Stat *self, PyObject *args)
 
 
 /* Stat.stat() */
-PyDoc_STRVAR(Stat_stat_doc,
-"");
-
 static PyObject *
 Stat_stat(Stat *self)
 {
@@ -251,17 +240,15 @@ static PyMethodDef Stat_tp_methods[] = {
 
 /* StatType.tp_members */
 static PyMemberDef Stat_tp_members[] = {
-    {"interval", T_DOUBLE, offsetof(Stat, stat.interval), READONLY, ""},
-    {"attr", T_OBJECT, offsetof(Stat, attr), READONLY, ""},
-    {"prev", T_OBJECT, offsetof(Stat, prev), READONLY, ""},
+    {"interval", T_DOUBLE, offsetof(Stat, stat.interval), READONLY,
+     Stat_interval_doc},
+    {"attr", T_OBJECT, offsetof(Stat, attr), READONLY, Stat_attr_doc},
+    {"prev", T_OBJECT, offsetof(Stat, prev), READONLY, Stat_prev_doc},
     {NULL}  /* Sentinel */
 };
 
 
 /* Stat.path */
-PyDoc_STRVAR(Stat_path_doc,
-"");
-
 static PyObject *
 Stat_path_get(Stat *self, void *closure)
 {

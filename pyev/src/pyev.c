@@ -42,218 +42,33 @@
 *
 *******************************************************************************/
 
-#define PY_SSIZE_T_CLEAN
-#include "Python.h"
-#include "structmember.h"
-#include "structseq.h"
-
-/* set EV_VERIFY */
-#ifndef EV_VERIFY
-#ifdef Py_DEBUG
-#define EV_VERIFY 3
-#else
-#define EV_VERIFY 0
-#endif /* Py_DEBUG */
-#endif /* !EV_VERIFY */
-
-/* pyev requirements */
-#undef EV_FEATURES
-#undef EV_MULTIPLICITY
-#undef EV_PERIODIC_ENABLE
-#undef EV_SIGNAL_ENABLE
-#undef EV_CHILD_ENABLE
-#undef EV_STAT_ENABLE
-#undef EV_IDLE_ENABLE
-#undef EV_PREPARE_ENABLE
-#undef EV_CHECK_ENABLE
-#undef EV_EMBED_ENABLE
-#undef EV_FORK_ENABLE
-#undef EV_ASYNC_ENABLE
-
-#include "libev/ev.c"
+#include "pyev.h"
+#include "pyevdoc.h" //documentation
 
 
 /*******************************************************************************
-* objects
+* types
 *******************************************************************************/
 
-/* Error */
-static PyObject *Error;
-PyDoc_STRVAR(Error_doc,
-"Raised when an error specific to pyev happens.");
-
-
-/* Loop */
-typedef struct {
-    PyObject_HEAD
-    struct ev_loop *loop;
-    PyObject *pending_cb;
-    PyObject *data;
-    char debug;
-} Loop;
-
-/* the 'default_loop' */
-Loop *DefaultLoop = NULL;
-
-
-/* Watcher - not exposed */
-typedef struct {
-    PyObject_HEAD
-    ev_watcher *watcher;
-    int type;
-    Loop *loop;
-    PyObject *callback;
-    PyObject *data;
-} Watcher;
-
-
-/* Io */
-typedef struct {
-    Watcher watcher;
-    ev_io io;
-} Io;
-static PyTypeObject IoType;
-
-
-/* Timer */
-typedef struct {
-    Watcher watcher;
-    ev_timer timer;
-} Timer;
-static PyTypeObject TimerType;
-
-
-/* Periodic */
-typedef struct {
-    Watcher watcher;
-    ev_periodic periodic;
-    PyObject *reschedule_cb;
-} Periodic;
-static PyTypeObject PeriodicType;
-
-
-/* Signal */
-typedef struct {
-    Watcher watcher;
-    ev_signal signal;
-} Signal;
-static PyTypeObject SignalType;
-
-
-/* Child */
-typedef struct {
-    Watcher watcher;
-    ev_child child;
-} Child;
-static PyTypeObject ChildType;
-
-
-/* Stat */
-static int initialized;
-static PyTypeObject StatdataType;
-
-typedef struct {
-    Watcher watcher;
-    ev_stat stat;
-    PyObject *attr;
-    PyObject *prev;
-} Stat;
-static PyTypeObject StatType;
-
-
-/* Idle */
-typedef struct {
-    Watcher watcher;
-    ev_idle idle;
-} Idle;
-static PyTypeObject IdleType;
-
-
-/* Prepare */
-typedef struct {
-    Watcher watcher;
-    ev_prepare prepare;
-} Prepare;
-static PyTypeObject PrepareType;
-
-
-/* Check */
-typedef struct {
-    Watcher watcher;
-    ev_check check;
-} Check;
-static PyTypeObject CheckType;
-
-
-/* Embed */
-typedef struct {
-    Watcher watcher;
-    ev_embed embed;
-    Loop *other;
-} Embed;
-static PyTypeObject EmbedType;
-
-
-/* Fork */
-typedef struct {
-    Watcher watcher;
-    ev_fork fork;
-} Fork;
-static PyTypeObject ForkType;
-
-
-/* Async */
-typedef struct {
-    Watcher watcher;
-    ev_async async;
-} Async;
-static PyTypeObject AsyncType;
+#include "Loop.c"
+#include "Watcher.c"
+#include "Io.c"
+#include "Timer.c"
+#include "Periodic.c"
+#include "Signal.c"
+#include "Child.c"
+#include "Stat.c"
+#include "Idle.c"
+#include "Prepare.c"
+#include "Check.c"
+#include "Embed.c"
+#include "Fork.c"
+#include "Async.c"
 
 
 /*******************************************************************************
 * utilities
 *******************************************************************************/
-
-#if PY_MAJOR_VERSION >= 3
-#define PyString_FromFormat PyUnicode_FromFormat
-#define PyString_FromString PyUnicode_FromString
-#define PyInt_FromLong PyLong_FromLong
-#define PyInt_FromUnsignedLong PyLong_FromUnsignedLong
-#define PyString_FromPath PyUnicode_DecodeFSDefault
-#else
-PyObject *
-PyInt_FromUnsignedLong(unsigned long value)
-{
-    if (value > INT_MAX) {
-        return PyLong_FromUnsignedLong(value);
-    }
-    return PyInt_FromLong((long)value);
-}
-#define PyString_FromPath PyString_FromString
-#endif /* PY_MAJOR_VERSION >= 3 */
-
-
-/* Py[Int/Long] -> int */
-int
-PyNum_AsInt(PyObject *pyvalue)
-{
-    long value;
-
-    value = PyLong_AsLong(pyvalue);
-    if (value == -1 && PyErr_Occurred()) {
-        return -1;
-    }
-    if (value < INT_MIN) {
-        PyErr_SetString(PyExc_OverflowError, "int is less than minimum");
-        return -1;
-    }
-    if (value > INT_MAX) {
-        PyErr_SetString(PyExc_OverflowError, "int is greater than maximum");
-        return -1;
-    }
-    return (int)value;
-}
-
 
 /* Create and document an exception */
 PyObject *
@@ -349,108 +164,11 @@ pyev_syserr_cb(const char *msg)
 }
 
 
-/* I need to investigate how the 100 opcodes rule works out exactly for the GIL.
-   Until then, better safe than sorry :). */
-#define PYEV_GIL_ENSURE \
-    { \
-        PyGILState_STATE gstate = PyGILState_Ensure(); \
-        PyObject *err_type, *err_value, *err_traceback; \
-        int had_error = PyErr_Occurred() ? 1 : 0; \
-        if (had_error) { \
-            PyErr_Fetch(&err_type, &err_value, &err_traceback); \
-        }
-
-#define PYEV_GIL_RELEASE \
-        if (had_error) { \
-            PyErr_Restore(err_type, err_value, err_traceback); \
-        } \
-        PyGILState_Release(gstate); \
-    }
-
-
-/* check for a positive float */
-int
-positive_float(double value)
-{
-    if (value < 0.0) {
-        PyErr_SetString(PyExc_ValueError, "a positive float or 0.0 is required");
-        return 0;
-    }
-    return 1;
-}
-
-
-/* fwd decl */
-static int
-Loop_pending_cb_set(Loop *self, PyObject *value, void *closure);
-
-static int
-Watcher_callback_set(Watcher *self, PyObject *value, void *closure);
-
-static int
-Periodic_reschedule_cb_set(Periodic *self, PyObject *value, void *closure);
-
-int
-update_Stat(Stat *self);
-
-
-/*******************************************************************************
-* types
-*******************************************************************************/
-
-#include "Loop.c"
-#include "Watcher.c"
-#include "Io.c"
-#include "Timer.c"
-#include "Periodic.c"
-#include "Signal.c"
-#include "Child.c"
-#include "Stat.c"
-#include "Idle.c"
-#include "Prepare.c"
-#include "Check.c"
-#include "Embed.c"
-#include "Fork.c"
-#include "Async.c"
-
-
 /*******************************************************************************
 * pyev_module
 *******************************************************************************/
 
-/* pyev_module.m_doc */
-PyDoc_STRVAR(pyev_m_doc,
-"pyev is Python libev interface.\n\
-\n\
-libev is an event loop: you register interest in certain events (such as a\n\
-file descriptor being readable or a timeout occurring), and it will manage\n\
-these event sources and provide your program with events. To do this, it\n\
-must take more or less complete control over your process (or thread) by\n\
-executing the event loop handler, and will then communicate events via a\n\
-callback mechanism. You register interest in certain events by registering\n\
-so-called event watchers, which you initialise with the details of the\n\
-event, and then hand it over to libev by starting the watcher.\n\
-\n\
-libev supports select, poll, the Linux-specific epoll, the BSD-specific\n\
-kqueue and the Solaris-specific event port mechanisms for file descriptor\n\
-events (Io), the Linux inotify interface (for Stat), Linux eventfd and\n\
-signalfd (for faster and cleaner inter-thread wakeup (Async) and signal\n\
-handling (Signal)), relative timers (Timer), absolute timers with\n\
-customised rescheduling (Periodic), synchronous signals (Signal), process\n\
-status change events (Child), and event watchers dealing with the event\n\
-loop mechanism itself (Idle, Embed, Prepare and Check watchers) as well as\n\
-file watchers (Stat) and even limited support for fork events (Fork).\n\
-\n\
-libev is written and maintained by Marc Lehmann.\n\
-\n\
-    See also: libev’s documentation at\n\
-      <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>.");
-
-
 /* pyev.version() -> (str, str) */
-PyDoc_STRVAR(pyev_version_doc,
-"");
-
 static PyObject *
 pyev_version(PyObject *module)
 {
@@ -459,9 +177,6 @@ pyev_version(PyObject *module)
 
 
 /* pyev.abi_version() -> (int, int) */
-PyDoc_STRVAR(pyev_abi_version_doc,
-"");
-
 static PyObject *
 pyev_abi_version(PyObject *module)
 {
@@ -470,9 +185,6 @@ pyev_abi_version(PyObject *module)
 
 
 /* pyev.time() -> float */
-PyDoc_STRVAR(pyev_time_doc,
-"");
-
 static PyObject *
 pyev_time(PyObject *module)
 {
@@ -481,9 +193,6 @@ pyev_time(PyObject *module)
 
 
 /* pyev.sleep(interval) */
-PyDoc_STRVAR(pyev_sleep_doc,
-"");
-
 static PyObject *
 pyev_sleep(PyObject *module, PyObject *args)
 {
@@ -500,9 +209,6 @@ pyev_sleep(PyObject *module, PyObject *args)
 
 
 /* pyev.supported_backends() -> int */
-PyDoc_STRVAR(pyev_supported_backends_doc,
-"");
-
 static PyObject *
 pyev_supported_backends(PyObject *module)
 {
@@ -511,9 +217,6 @@ pyev_supported_backends(PyObject *module)
 
 
 /* pyev.recommended_backends() -> int */
-PyDoc_STRVAR(pyev_recommended_backends_doc,
-"");
-
 static PyObject *
 pyev_recommended_backends(PyObject *module)
 {
@@ -522,9 +225,6 @@ pyev_recommended_backends(PyObject *module)
 
 
 /* pyev.embeddable_backends() -> int */
-PyDoc_STRVAR(pyev_embeddable_backends_doc,
-"");
-
 static PyObject *
 pyev_embeddable_backends(PyObject *module)
 {
@@ -532,11 +232,8 @@ pyev_embeddable_backends(PyObject *module)
 }
 
 
-/* pyev.default_loop([flags=EVFLAG_AUTO[, pending_cb=None[, data=None[,
-                     debug=False]]]]) -> 'default_loop' */
-PyDoc_STRVAR(pyev_default_loop_doc,
-"");
-
+/* pyev.default_loop([flags=EVFLAG_AUTO, pending_cb=None, data=None, debug=False,
+                      io_interval=0.0, timeout_interval=0.0]) -> 'default_loop' */
 static PyObject *
 pyev_default_loop(PyObject *module, PyObject *args, PyObject *kwargs)
 {
@@ -643,7 +340,7 @@ init_pyev(void)
         return NULL;
     }
     /* pyev.Error */
-    Error = PyErr_Create("pyev.Error", Error_doc, NULL);
+    Error = PyErr_Create("pyev.Error", pyev_Error_doc, NULL);
     if (!Error || PyModule_AddObject(pyev, "Error", Error)) {
         Py_XDECREF(Error);
         goto fail;

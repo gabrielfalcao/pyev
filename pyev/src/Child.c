@@ -2,11 +2,6 @@
 * ChildType
 *******************************************************************************/
 
-/* ChildType.tp_doc */
-PyDoc_STRVAR(Child_tp_doc,
-"Child(pid, trace, loop, callback[, data=None])");
-
-
 /* ChildType.tp_new */
 static PyObject *
 Child_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -45,9 +40,6 @@ Child_tp_init(Child *self, PyObject *args, PyObject *kwargs)
 
 
 /* Child.set(pid, trace) */
-PyDoc_STRVAR(Child_set_doc,
-"");
-
 static PyObject *
 Child_set(Child *self, PyObject *args)
 {
@@ -74,9 +66,9 @@ static PyMethodDef Child_tp_methods[] = {
 
 /* ChildType.tp_members */
 static PyMemberDef Child_tp_members[] = {
-    {"pid", T_INT, offsetof(Child, child.pid), READONLY, ""},
-    {"rpid", T_INT, offsetof(Child, child.rpid), 0, ""},
-    {"rstatus", T_INT, offsetof(Child, child.rstatus), 0, ""},
+    {"pid", T_INT, offsetof(Child, child.pid), READONLY, Child_pid_doc},
+    {"rpid", T_INT, offsetof(Child, child.rpid), 0, Child_rpid_doc},
+    {"rstatus", T_INT, offsetof(Child, child.rstatus), 0, Child_rstatus_doc},
     {NULL}  /* Sentinel */
 };
 

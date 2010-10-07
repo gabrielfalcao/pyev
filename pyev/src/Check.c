@@ -2,11 +2,6 @@
 * CheckType
 *******************************************************************************/
 
-/* CheckType.tp_doc */
-PyDoc_STRVAR(Check_tp_doc,
-"Check(loop, callback[, data=None])");
-
-
 /* CheckType.tp_new */
 static PyObject *
 Check_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)

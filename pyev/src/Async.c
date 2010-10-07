@@ -2,11 +2,6 @@
 * AsyncType
 *******************************************************************************/
 
-/* AsyncType.tp_doc */
-PyDoc_STRVAR(Async_tp_doc,
-"Async(loop, callback[, data=None])");
-
-
 /* AsyncType.tp_new */
 static PyObject *
 Async_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -42,9 +37,6 @@ Async_tp_init(Async *self, PyObject *args, PyObject *kwargs)
 
 
 /* Async.send() */
-PyDoc_STRVAR(Async_send_doc,
-"");
-
 static PyObject *
 Async_send(Async *self)
 {
@@ -61,9 +53,6 @@ static PyMethodDef Async_tp_methods[] = {
 
 
 /* Async.sent */
-PyDoc_STRVAR(Async_sent_doc,
-"");
-
 static PyObject *
 Async_sent_get(Async *self, void *closure)
 {

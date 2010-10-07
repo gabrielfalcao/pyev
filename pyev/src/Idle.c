@@ -2,11 +2,6 @@
 * IdleType
 *******************************************************************************/
 
-/* IdleType.tp_doc */
-PyDoc_STRVAR(Idle_tp_doc,
-"Idle(loop, callback[, data=None])");
-
-
 /* IdleType.tp_new */
 static PyObject *
 Idle_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)

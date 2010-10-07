@@ -2,11 +2,6 @@
 * ForkType
 *******************************************************************************/
 
-/* ForkType.tp_doc */
-PyDoc_STRVAR(Fork_tp_doc,
-"Fork(loop, callback[, data=None])");
-
-
 /* ForkType.tp_new */
 static PyObject *
 Fork_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)

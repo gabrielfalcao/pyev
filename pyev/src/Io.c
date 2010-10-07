@@ -24,11 +24,6 @@ set_Io(Io *self, PyObject *fd, int events)
 * IoType
 *******************************************************************************/
 
-/* IoType.tp_doc */
-PyDoc_STRVAR(Io_tp_doc,
-"Io(fd, events, loop, callback[, data=None])");
-
-
 /* IoType.tp_new */
 static PyObject *
 Io_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -69,9 +64,6 @@ Io_tp_init(Io *self, PyObject *args, PyObject *kwargs)
 
 
 /* Io.set(fd, events) */
-PyDoc_STRVAR(Io_set_doc,
-"");
-
 static PyObject *
 Io_set(Io *self, PyObject *args)
 {
@@ -100,8 +92,8 @@ static PyMethodDef Io_tp_methods[] = {
 
 /* IoType.tp_members */
 static PyMemberDef Io_tp_members[] = {
-    {"fd", T_INT, offsetof(Io, io.fd), READONLY, ""},
-    {"events", T_INT, offsetof(Io, io.events), READONLY, ""},
+    {"fd", T_INT, offsetof(Io, io.fd), READONLY, Io_fd_doc},
+    {"events", T_INT, offsetof(Io, io.events), READONLY, Io_events_doc},
     {NULL}  /* Sentinel */
 };
 

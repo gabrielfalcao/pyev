@@ -2,6 +2,14 @@
 * utilities
 *******************************************************************************/
 
+/* fwd decl */
+int
+update_Stat(Stat *self);
+
+static int
+Watcher_callback_set(Watcher *self, PyObject *value, void *closure);
+
+
 /* start/stop Watcher */
 #define PYEV_WATCHER_START(t, w) t##_start(w->loop->loop, (t *)w->watcher)
 
@@ -248,9 +256,6 @@ Watcher_tp_dealloc(Watcher *self)
 
 
 /* Watcher.start() */
-PyDoc_STRVAR(Watcher_start_doc,
-"");
-
 static PyObject *
 Watcher_start(Watcher *self)
 {
@@ -263,9 +268,6 @@ Watcher_start(Watcher *self)
 
 
 /* Watcher.stop() */
-PyDoc_STRVAR(Watcher_stop_doc,
-"");
-
 static PyObject *
 Watcher_stop(Watcher *self)
 {
@@ -275,9 +277,6 @@ Watcher_stop(Watcher *self)
 
 
 /* Watcher.invoke(revents) */
-PyDoc_STRVAR(Watcher_invoke_doc,
-"");
-
 static PyObject *
 Watcher_invoke(Watcher *self, PyObject *args)
 {
@@ -292,9 +291,6 @@ Watcher_invoke(Watcher *self, PyObject *args)
 
 
 /* Watcher.clear_pending() -> int */
-PyDoc_STRVAR(Watcher_clear_pending_doc,
-"");
-
 static PyObject *
 Watcher_clear_pending(Watcher *self)
 {
@@ -303,9 +299,6 @@ Watcher_clear_pending(Watcher *self)
 
 
 /* Watcher.feed_event(revents) */
-PyDoc_STRVAR(Watcher_feed_event_doc,
-"");
-
 static PyObject *
 Watcher_feed_event(Watcher *self, PyObject *args)
 {
@@ -334,16 +327,13 @@ static PyMethodDef Watcher_tp_methods[] = {
 
 /* WatcherType.tp_members */
 static PyMemberDef Watcher_tp_members[] = {
-    {"loop", T_OBJECT_EX, offsetof(Watcher, loop), READONLY, ""},
-    {"data", T_OBJECT, offsetof(Watcher, data), 0, ""},
+    {"loop", T_OBJECT_EX, offsetof(Watcher, loop), READONLY, Watcher_loop_doc},
+    {"data", T_OBJECT, offsetof(Watcher, data), 0, Watcher_data_doc},
     {NULL}  /* Sentinel */
 };
 
 
 /* Watcher.callback */
-PyDoc_STRVAR(Watcher_callback_doc,
-"");
-
 static PyObject *
 Watcher_callback_get(Watcher *self, void *closure)
 {
@@ -381,9 +371,6 @@ Watcher_callback_set(Watcher *self, PyObject *value, void *closure)
 
 
 /* Watcher.active */
-PyDoc_STRVAR(Watcher_active_doc,
-"");
-
 static PyObject *
 Watcher_active_get(Watcher *self, void *closure)
 {
@@ -395,9 +382,6 @@ Watcher_active_get(Watcher *self, void *closure)
 
 
 /* Watcher.pending */
-PyDoc_STRVAR(Watcher_pending_doc,
-"");
-
 static PyObject *
 Watcher_pending_get(Watcher *self, void *closure)
 {
@@ -409,9 +393,6 @@ Watcher_pending_get(Watcher *self, void *closure)
 
 
 /* Watcher.priority */
-PyDoc_STRVAR(Watcher_priority_doc,
-"");
-
 static PyObject *
 Watcher_priority_get(Watcher *self, void *closure)
 {

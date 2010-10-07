@@ -2,11 +2,6 @@
 * PrepareType
 *******************************************************************************/
 
-/* PrepareType.tp_doc */
-PyDoc_STRVAR(Prepare_tp_doc,
-"Prepare(loop, callback[, data=None])");
-
-
 /* PrepareType.tp_new */
 static PyObject *
 Prepare_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)

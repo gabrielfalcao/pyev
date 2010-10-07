@@ -2,6 +2,11 @@
 * utilities
 *******************************************************************************/
 
+/* fwd decl */
+static int
+Periodic_reschedule_cb_set(Periodic *self, PyObject *value, void *closure);
+
+
 /* Periodic reschedule stop callback */
 static void
 stop_reschedule_Periodic(struct ev_loop *loop, ev_prepare *prepare, int revents)
@@ -94,11 +99,6 @@ set_Periodic(Periodic *self, double offset, double interval,
 * PeriodicType
 *******************************************************************************/
 
-/* PeriodicType.tp_doc */
-PyDoc_STRVAR(Periodic_tp_doc,
-"Periodic(offset, interval, reschedule_cb, loop, callback=None[, data=None])");
-
-
 /* PeriodicType.tp_traverse */
 static int
 Periodic_tp_traverse(Periodic *self, visitproc visit, void *arg)
@@ -167,9 +167,6 @@ Periodic_tp_init(Periodic *self, PyObject *args, PyObject *kwargs)
 
 
 /* Periodic.set(offset, interval, reschedule_cb) */
-PyDoc_STRVAR(Periodic_set_doc,
-"");
-
 static PyObject *
 Periodic_set(Periodic *self, PyObject *args)
 {
@@ -191,9 +188,6 @@ Periodic_set(Periodic *self, PyObject *args)
 
 //XXX: reset?
 /* Periodic.reset() */
-PyDoc_STRVAR(Periodic_reset_doc,
-"");
-
 static PyObject *
 Periodic_reset(Periodic *self)
 {
@@ -203,9 +197,6 @@ Periodic_reset(Periodic *self)
 
 
 /* Periodic.at() */
-PyDoc_STRVAR(Periodic_at_doc,
-"");
-
 static PyObject *
 Periodic_at(Periodic *self)
 {
@@ -224,15 +215,13 @@ static PyMethodDef Periodic_tp_methods[] = {
 
 /* PeriodicType.tp_members */
 static PyMemberDef Periodic_tp_members[] = {
-    {"offset", T_DOUBLE, offsetof(Periodic, periodic.offset), 0, ""},
+    {"offset", T_DOUBLE, offsetof(Periodic, periodic.offset), 0,
+     Periodic_offset_doc},
     {NULL}  /* Sentinel */
 };
 
 
 /* Periodic.interval */
-PyDoc_STRVAR(Periodic_interval_doc,
-"");
-
 static PyObject *
 Periodic_interval_get(Periodic *self, void *closure)
 {
@@ -261,9 +250,6 @@ Periodic_interval_set(Periodic *self, PyObject *value, void *closure)
 
 
 /* Periodic.reschedule_cb */
-PyDoc_STRVAR(Periodic_reschedule_cb_doc,
-"");
-
 static PyObject *
 Periodic_reschedule_cb_get(Periodic *self, void *closure)
 {

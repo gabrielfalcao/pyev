@@ -27,11 +27,6 @@ set_Signal(Signal *self, int signum)
 * SignalType
 *******************************************************************************/
 
-/* SignalType.tp_doc */
-PyDoc_STRVAR(Signal_tp_doc,
-"Signal(signum, loop, callback[, data=None])");
-
-
 /* SignalType.tp_new */
 static PyObject *
 Signal_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -71,9 +66,6 @@ Signal_tp_init(Signal *self, PyObject *args, PyObject *kwargs)
 
 
 /* Signal.set(signum) */
-PyDoc_STRVAR(Signal_set_doc,
-"");
-
 static PyObject *
 Signal_set(Signal *self, PyObject *args)
 {
@@ -101,7 +93,8 @@ static PyMethodDef Signal_tp_methods[] = {
 
 /* SignalType.tp_members */
 static PyMemberDef Signal_tp_members[] = {
-    {"signum", T_INT, offsetof(Signal, signal.signum), READONLY, ""},
+    {"signum", T_INT, offsetof(Signal, signal.signum), READONLY,
+     Signal_signum_doc},
     {NULL}  /* Sentinel */
 };
 

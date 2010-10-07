@@ -2,6 +2,11 @@
 * utilities
 *******************************************************************************/
 
+/* fwd decl */
+static int
+Loop_pending_cb_set(Loop *self, PyObject *value, void *closure);
+
+
 /* report errors and bail out if needed */
 void
 report_error_Loop(Loop *self, PyObject *context)
@@ -107,11 +112,6 @@ new_Loop(PyTypeObject *type, PyObject *args, PyObject *kwargs, char default_loop
 * LoopType
 *******************************************************************************/
 
-/* LoopType.tp_doc */
-PyDoc_STRVAR(Loop_tp_doc,
-"Loop([flags=EVFLAG_AUTO[, pending_cb=None[, data=None[, debug=False]]]])");
-
-
 /* LoopType.tp_traverse */
 static int
 Loop_tp_traverse(Loop *self, visitproc visit, void *arg)
@@ -159,9 +159,6 @@ Loop_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 
 
 /* Loop.fork() */
-PyDoc_STRVAR(Loop_fork_doc,
-"");
-
 static PyObject *
 Loop_fork(Loop *self)
 {
@@ -176,9 +173,6 @@ Loop_fork(Loop *self)
 
 
 /* Loop.now() -> float */
-PyDoc_STRVAR(Loop_now_doc,
-"");
-
 static PyObject *
 Loop_now(Loop *self)
 {
@@ -187,9 +181,6 @@ Loop_now(Loop *self)
 
 
 /* Loop.now_update() */
-PyDoc_STRVAR(Loop_now_update_doc,
-"");
-
 static PyObject *
 Loop_now_update(Loop *self)
 {
@@ -200,9 +191,6 @@ Loop_now_update(Loop *self)
 
 /* Loop.suspend()
    Loop.resume() */
-PyDoc_STRVAR(Loop_suspend_resume_doc,
-"");
-
 static PyObject *
 Loop_suspend(Loop *self)
 {
@@ -219,9 +207,6 @@ Loop_resume(Loop *self)
 
 
 /* Loop.loop([flags]) */
-PyDoc_STRVAR(Loop_loop_doc,
-"");
-
 static PyObject *
 Loop_loop(Loop *self, PyObject *args)
 {
@@ -241,9 +226,6 @@ Loop_loop(Loop *self, PyObject *args)
 
 
 /* Loop.unloop([how]) */
-PyDoc_STRVAR(Loop_unloop_doc,
-"");
-
 static PyObject *
 Loop_unloop(Loop *self, PyObject *args)
 {
@@ -259,9 +241,6 @@ Loop_unloop(Loop *self, PyObject *args)
 
 /* Loop.ref()
    Loop.unref() */
-PyDoc_STRVAR(Loop_ref_unref_doc,
-"");
-
 static PyObject *
 Loop_ref(Loop *self)
 {
@@ -279,9 +258,6 @@ Loop_unref(Loop *self)
 
 /* Loop.set_io_collect_interval(interval)
    Loop.set_timeout_collect_interval(interval) */
-PyDoc_STRVAR(Loop_set_collect_interval_doc,
-"");
-
 static PyObject *
 Loop_set_io_collect_interval(Loop *self, PyObject *args)
 {
@@ -314,9 +290,6 @@ Loop_set_timeout_collect_interval(Loop *self, PyObject *args)
 
 
 /* Loop.pending_invoke() */
-PyDoc_STRVAR(Loop_pending_invoke_doc,
-"");
-
 static PyObject *
 Loop_pending_invoke(Loop *self)
 {
@@ -326,9 +299,6 @@ Loop_pending_invoke(Loop *self)
 
 
 /* Loop.verify() */
-PyDoc_STRVAR(Loop_verify_doc,
-"");
-
 static PyObject *
 Loop_verify(Loop *self)
 {
@@ -340,9 +310,6 @@ Loop_verify(Loop *self)
 /* watchers methods */
 
 /* Loop.Io(fd, events, callback[, data]) */
-PyDoc_STRVAR(Loop_Io_doc,
-"");
-
 static PyObject *
 Loop_Io(Loop *self, PyObject *args)
 {
@@ -358,9 +325,6 @@ Loop_Io(Loop *self, PyObject *args)
 
 
 /* Loop.Timer(after, repeat, callback[, data]) */
-PyDoc_STRVAR(Loop_Timer_doc,
-"");
-
 static PyObject *
 Loop_Timer(Loop *self, PyObject *args)
 {
@@ -376,9 +340,6 @@ Loop_Timer(Loop *self, PyObject *args)
 
 
 /* Loop.Periodic(offset, interval, reschedule_cb, callback[, data]) */
-PyDoc_STRVAR(Loop_Periodic_doc,
-"");
-
 static PyObject *
 Loop_Periodic(Loop *self, PyObject *args)
 {
@@ -395,9 +356,6 @@ Loop_Periodic(Loop *self, PyObject *args)
 
 
 /* Loop.Signal(signum, callback[, data]) */
-PyDoc_STRVAR(Loop_Signal_doc,
-"");
-
 static PyObject *
 Loop_Signal(Loop *self, PyObject *args)
 {
@@ -413,9 +371,6 @@ Loop_Signal(Loop *self, PyObject *args)
 
 
 /* Loop.Child(pid, trace, callback[, data]) */
-PyDoc_STRVAR(Loop_Child_doc,
-"");
-
 static PyObject *
 Loop_Child(Loop *self, PyObject *args)
 {
@@ -431,9 +386,6 @@ Loop_Child(Loop *self, PyObject *args)
 
 
 /* Loop.Stat(path, interval, callback[, data]) */
-PyDoc_STRVAR(Loop_Stat_doc,
-"");
-
 static PyObject *
 Loop_Stat(Loop *self, PyObject *args)
 {
@@ -450,9 +402,6 @@ Loop_Stat(Loop *self, PyObject *args)
 
 
 /* Loop.Idle(callback[, data]) */
-PyDoc_STRVAR(Loop_Idle_doc,
-"");
-
 static PyObject *
 Loop_Idle(Loop *self, PyObject *args)
 {
@@ -467,9 +416,6 @@ Loop_Idle(Loop *self, PyObject *args)
 
 
 /* Loop.Prepare(callback[, data]) */
-PyDoc_STRVAR(Loop_Prepare_doc,
-"");
-
 static PyObject *
 Loop_Prepare(Loop *self, PyObject *args)
 {
@@ -484,9 +430,6 @@ Loop_Prepare(Loop *self, PyObject *args)
 
 
 /* Loop.Check(callback[, data]) */
-PyDoc_STRVAR(Loop_Check_doc,
-"");
-
 static PyObject *
 Loop_Check(Loop *self, PyObject *args)
 {
@@ -501,9 +444,6 @@ Loop_Check(Loop *self, PyObject *args)
 
 
 /* Loop.Embed(other[, callback[, data]]) */
-PyDoc_STRVAR(Loop_Embed_doc,
-"");
-
 static PyObject *
 Loop_Embed(Loop *self, PyObject *args)
 {
@@ -519,9 +459,6 @@ Loop_Embed(Loop *self, PyObject *args)
 
 
 /* Loop.Fork(callback[, data]) */
-PyDoc_STRVAR(Loop_Fork_doc,
-"");
-
 static PyObject *
 Loop_Fork(Loop *self, PyObject *args)
 {
@@ -536,9 +473,6 @@ Loop_Fork(Loop *self, PyObject *args)
 
 
 /* Loop.Async(callback[, data]) */
-PyDoc_STRVAR(Loop_Async_doc,
-"");
-
 static PyObject *
 Loop_Async(Loop *self, PyObject *args)
 {
@@ -590,16 +524,13 @@ static PyMethodDef Loop_tp_methods[] = {
 
 /* LoopType.tp_members */
 static PyMemberDef Loop_tp_members[] = {
-    {"data", T_OBJECT, offsetof(Loop, data), 0, ""},
-    {"debug", T_BOOL, offsetof(Loop, debug), 0, ""},
+    {"data", T_OBJECT, offsetof(Loop, data), 0, Loop_data_doc},
+    {"debug", T_BOOL, offsetof(Loop, debug), 0, Loop_debug_doc},
     {NULL}  /* Sentinel */
 };
 
 
 /* Loop.default_loop */
-PyDoc_STRVAR(Loop_default_loop_doc,
-"");
-
 static PyObject *
 Loop_default_loop_get(Loop *self, void *closure)
 {
@@ -611,9 +542,6 @@ Loop_default_loop_get(Loop *self, void *closure)
 
 
 /* Loop.iteration */
-PyDoc_STRVAR(Loop_iteration_doc,
-"");
-
 static PyObject *
 Loop_iteration_get(Loop *self, void *closure)
 {
@@ -622,9 +550,6 @@ Loop_iteration_get(Loop *self, void *closure)
 
 
 /* Loop.depth */
-PyDoc_STRVAR(Loop_depth_doc,
-"");
-
 static PyObject *
 Loop_depth_get(Loop *self, void *closure)
 {
@@ -633,9 +558,6 @@ Loop_depth_get(Loop *self, void *closure)
 
 
 /* Loop.backend */
-PyDoc_STRVAR(Loop_backend_doc,
-"");
-
 static PyObject *
 Loop_backend_get(Loop *self, void *closure)
 {
@@ -644,9 +566,6 @@ Loop_backend_get(Loop *self, void *closure)
 
 
 /* Loop.pending_count */
-PyDoc_STRVAR(Loop_pending_count_doc,
-"");
-
 static PyObject *
 Loop_pending_count_get(Loop *self, void *closure)
 {
@@ -655,9 +574,6 @@ Loop_pending_count_get(Loop *self, void *closure)
 
 
 /* Loop.pending_cb */
-PyDoc_STRVAR(Loop_pending_cb_doc,
-"");
-
 static PyObject *
 Loop_pending_cb_get(Loop *self, void *closure)
 {

@@ -18,11 +18,6 @@ set_Timer(Timer *self, double after, double repeat)
 * TimerType
 *******************************************************************************/
 
-/* TimerType.tp_doc */
-PyDoc_STRVAR(Timer_tp_doc,
-"Timer(after, repeat, loop, callback[, data=None])");
-
-
 /* TimerType.tp_new */
 static PyObject *
 Timer_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
@@ -62,9 +57,6 @@ Timer_tp_init(Timer *self, PyObject *args, PyObject *kwargs)
 
 
 /* Timer.set(after, repeat) */
-PyDoc_STRVAR(Timer_set_doc,
-"");
-
 static PyObject *
 Timer_set(Timer *self, PyObject *args)
 {
@@ -85,9 +77,6 @@ Timer_set(Timer *self, PyObject *args)
 
 //XXX: reset?
 /* Timer.reset() */
-PyDoc_STRVAR(Timer_reset_doc,
-"");
-
 static PyObject *
 Timer_reset(Timer *self)
 {
@@ -97,9 +86,6 @@ Timer_reset(Timer *self)
 
 
 /* Timer.remaining() */
-PyDoc_STRVAR(Timer_remaining_doc,
-"");
-
 static PyObject *
 Timer_remaining(Timer *self)
 {
@@ -118,9 +104,6 @@ static PyMethodDef Timer_tp_methods[] = {
 
 
 /* Timer.repeat */
-PyDoc_STRVAR(Timer_repeat_doc,
-"");
-
 static PyObject *
 Timer_repeat_get(Timer *self, void *closure)
 {

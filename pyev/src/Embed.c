@@ -25,11 +25,6 @@ set_Embed(Embed *self, Loop *other)
 * EmbedType
 *******************************************************************************/
 
-/* EmbedType.tp_doc */
-PyDoc_STRVAR(Embed_tp_doc,
-"Embed(other, loop[, callback=None[, data=None]])");
-
-
 /* EmbedType.tp_traverse */
 static int
 Embed_tp_traverse(Embed *self, visitproc visit, void *arg)
@@ -95,9 +90,6 @@ Embed_tp_init(Embed *self, PyObject *args, PyObject *kwargs)
 
 
 /* Embed.set(other) */
-PyDoc_STRVAR(Embed_set_doc,
-"");
-
 static PyObject *
 Embed_set(Embed *self, PyObject *args)
 {
@@ -117,9 +109,6 @@ Embed_set(Embed *self, PyObject *args)
 
 
 /* Embed.sweep() */
-PyDoc_STRVAR(Embed_sweep_doc,
-"");
-
 static PyObject *
 Embed_sweep(Embed *self)
 {
@@ -138,14 +127,9 @@ static PyMethodDef Embed_tp_methods[] = {
 
 /* EmbedType.tp_members */
 static PyMemberDef Embed_tp_members[] = {
-    {"other", T_OBJECT_EX, offsetof(Embed, other), READONLY, ""},
+    {"other", T_OBJECT_EX, offsetof(Embed, other), READONLY, Embed_other_doc},
     {NULL}  /* Sentinel */
 };
-
-
-/* Embed.callback */
-PyDoc_STRVAR(Embed_callback_doc,
-"");
 
 
 /* EmbedType.tp_getsets */
