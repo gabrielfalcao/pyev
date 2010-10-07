@@ -75,7 +75,7 @@ PyObject *
 PyErr_Create(char *name, const char *doc, PyObject *base)
 {
     PyObject *dict = NULL;
-    PyObject *_doc;
+    PyObject *_doc, *err;
 
     if (doc) {
         dict = PyDict_New();
@@ -90,7 +90,9 @@ PyErr_Create(char *name, const char *doc, PyObject *base)
         }
         Py_DECREF(_doc);
     }
-    return PyErr_NewException(name, base, dict);
+    err = PyErr_NewException(name, base, dict);
+    Py_XDECREF(dict);
+    return err;
 }
 
 

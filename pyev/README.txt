@@ -26,7 +26,8 @@ and even limited support for fork events (:class:`~pyev.Fork`).
 libev is written and maintained by Marc Lehmann.
 
 .. seealso::
-    `libev's documentation <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>`_.
+    `libev's documentation
+    <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>`_.
 
 
 Useful links:

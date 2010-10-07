@@ -50,10 +50,6 @@
 * pyev_module
 *******************************************************************************/
 
-PyDoc_STRVAR(pyev_Error_doc,
-"Raised when an error specific to pyev happens.");
-
-
 /* pyev_module.m_doc */
 PyDoc_STRVAR(pyev_m_doc,
 "pyev is Python libev interface.\n\
@@ -79,49 +75,174 @@ file watchers (Stat) and even limited support for fork events (Fork).\n\
 \n\
 libev is written and maintained by Marc Lehmann.\n\
 \n\
-    See also: libev’s documentation at\n\
-      <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>.");
+See also: libev’s documentation\n\
+at <http://pod.tst.eu/http://cvs.schmorp.de/libev/ev.pod>.\n\
+\n\
+\n\
+Environment variables:\n\
+\n\
+    LIBEV_FLAGS\n\
+        See EVFLAG_NOENV.\n\
+\n\
+\n\
+EVFLAG_* constants:\n\
+\n\
+    EVFLAG_AUTO\n\
+        The default 'flags' value. This will setup the loop with default\n\
+        behaviour and backend.\n\
+\n\
+    EVFLAG_NOENV\n\
+        If this flag bit is or'ed into the 'flags' value (or the program\n\
+        runs setuid or setgid) then libev will not look at the environment\n\
+        variable LIBEV_FLAGS. Otherwise (the default), LIBEV_FLAGS will\n\
+        override the 'flags' completely if it is found in the environment.\n\
+        This is useful to try out specific backends to test their\n\
+        performance, or to work around bugs.\n\
+\n\
+    EVFLAG_FORKCHECK\n\
+        Instead of calling Loop.fork() manually after a fork, you can also\n\
+        make libev check for a fork in each iteration by enabling this\n\
+        flag.\n\
+        This works by calling getpid() on every iteration of the loop,\n\
+        and thus this might slow down your event loop if you do a lot of\n\
+        loop iterations and little real work, but is usually not\n\
+        noticeable.\n\
+        The big advantage of this flag is that you can forget about fork\n\
+        (and forget about forgetting to tell libev about forking) when you\n\
+        use it.\n\
+        This flag setting cannot be overridden or specified in the\n\
+        LIBEV_FLAGS environment variable.\n\
+\n\
+    EVFLAG_NOINOTIFY\n\
+        When this flag is specified, then libev will not attempt to use\n\
+        the inotify API for the Stat watchers. Apart from debugging and\n\
+        testing, this flag can be useful to conserve inotify file\n\
+        descriptors, as otherwise each loop using Stat watchers consumes\n\
+        one inotify handle.\n\
+\n\
+    EVFLAG_SIGNALFD\n\
+        When this flag is specified, then libev will attempt to use the\n\
+        signalfd API for the Signal (and Child) watchers. This API\n\
+        delivers signals synchronously, which makes it both faster and\n\
+        might make it possible to get the queued signal data. It can also\n\
+        simplify signal handling with threads, as long as you properly\n\
+        block signals in the threads that are not interested in handling\n\
+        them.\n\
+        signalfd will not be used by default as this changes your signal\n\
+        mask.\n\
+\n\
+\n\
+EVBACKEND_* constants:\n\
+\n\
+    EVBACKEND_SELECT\n\
+        TODO.\n\
+\n\
+    EVBACKEND_POLL\n\
+        TODO.\n\
+\n\
+    EVBACKEND_EPOLL\n\
+        TODO.\n\
+\n\
+    EVBACKEND_KQUEUE\n\
+        TODO.\n\
+\n\
+    EVBACKEND_DEVPOLL\n\
+        TODO.\n\
+\n\
+    EVBACKEND_PORT\n\
+        TODO.\n\
+\n\
+    EVBACKEND_ALL\n\
+        TODO.");
+
+
+/* pyev.Error */
+PyDoc_STRVAR(pyev_Error_doc,
+"Raised when an error specific to pyev happens.");
 
 
 /* pyev.version() -> (str, str) */
 PyDoc_STRVAR(pyev_version_doc,
-"");
+"version() -> (str, str)\n\
+\n\
+Returns a tuple of version strings.\n\
+The former is pyev version, while the latter is the underlying libev\n\
+version.");
 
 
 /* pyev.abi_version() -> (int, int) */
 PyDoc_STRVAR(pyev_abi_version_doc,
-"");
+"abi_version() -> (int, int)\n\
+\n\
+Returns a tuple of major, minor version numbers.\n\
+These numbers represent the libev ABI version that this module is\n\
+running.\n\
+\n\
+Note: This is not the same as libev version (although it might\n\
+coincide).");
 
 
 /* pyev.time() -> float */
 PyDoc_STRVAR(pyev_time_doc,
-"");
+"time() -> float\n\
+\n\
+Returns the current time as libev would use it.\n\
+\n\
+Note: The Loop.now() method is usually faster and also often returns\n\
+the timestamp you actually want to know.");
 
 
 /* pyev.sleep(interval) */
 PyDoc_STRVAR(pyev_sleep_doc,
-"");
+"sleep(interval)\n\
+\n\
+Sleep for the given 'interval' (in seconds).\n\
+The current thread will be blocked until either it is interrupted or\n\
+the given time 'interval' has passed.");
 
 
 /* pyev.supported_backends() -> int */
 PyDoc_STRVAR(pyev_supported_backends_doc,
-"");
+"supported_backends() -> int\n\
+\n\
+Returns the set of all backends (i.e. their corresponding EVBACKEND_*\n\
+value) compiled into this binary of libev (independent of their\n\
+availability on the system you are running on).\n\
+\n\
+See EVBACKEND_* constants for a description of the set values.");
 
 
 /* pyev.recommended_backends() -> int */
 PyDoc_STRVAR(pyev_recommended_backends_doc,
-"");
+"recommended_backends() -> int\n\
+\n\
+Returns the set of all backends compiled into this binary of libev\n\
+and also recommended for this platform. This set is often smaller\n\
+than the one returned by supported_backends(), as for example kqueue\n\
+is broken on most BSDs and will not be auto-detected unless you\n\
+explicitly request it. This is the set of backends that libev will\n\
+probe for if you specify no backends explicitly.\n\
+\n\
+See EVBACKEND_* constants for a description of the set values.");
 
 
 /* pyev.embeddable_backends() -> int */
 PyDoc_STRVAR(pyev_embeddable_backends_doc,
-"");
+"embeddable_backends() -> int\n\
+\n\
+Returns the set of backends that are embeddable in other event loops.\n\
+This is the theoretical, all-platform, value. To find which backends\n\
+might be supported on the current system, you would need to look at:\n\
+\n\
+    embeddable_backends() & supported_backends()\n\
+\n\
+See EVBACKEND_* constants for a description of the set values.");
 
 
 /* pyev.default_loop([flags=EVFLAG_AUTO, pending_cb=None, data=None, debug=False,
-                      io_interval=0.0, timeout_interval=0.0]) -> 'default_loop' */
+                      io_interval=0.0, timeout_interval=0.0]) -> the 'default loop' */
 PyDoc_STRVAR(pyev_default_loop_doc,
-"");
+"TODO.");
 
 
 /*******************************************************************************
