@@ -70,7 +70,7 @@
         call comes in handy.
 
 
-    .. py:method:: fork
+    .. py:method:: reset
 
         This method sets a flag that causes subsequent loop iterations to
         reinitialise the kernel state for backends that have one. Despite the
@@ -333,7 +333,7 @@ behaviour
 
 .. py:data:: EVFLAG_FORKCHECK
 
-    Instead of calling :py:meth:`Loop.fork` manually after a fork, you can also
+    Instead of calling :py:meth:`Loop.reset` manually after a fork, you can also
     make libev check for a fork in each iteration by enabling this flag.
     This works by calling :c:func:`getpid` on every iteration of the loop, and
     thus this might slow down your event loop if you do a lot of loop iterations

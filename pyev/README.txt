@@ -1,7 +1,3 @@
-.. warning::
-    This is the last version to support both Python 2 and 3. The next release
-    will only support Python 3 (starting with python 3.2).
-
 Python libev interface.
 
 libev is an event loop: you register interest in certain events (such as a file
