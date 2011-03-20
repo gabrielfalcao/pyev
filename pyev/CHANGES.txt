@@ -8,15 +8,6 @@ Todo
 
 
 
-Release 0.7.1-4.04
-==================
-
-:py:class:`Loop`:
-
-- Method fork() has been renamed reset().
-
-
-
 Release 0.7.0-4.04
 ==================
 

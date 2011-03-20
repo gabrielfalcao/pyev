@@ -172,12 +172,12 @@ Loop_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 }
 
 
-/* Loop.reset() */
-PyDoc_STRVAR(Loop_reset_doc,
-"reset()");
+/* Loop.fork() */
+PyDoc_STRVAR(Loop_fork_doc,
+"fork()");
 
 static PyObject *
-Loop_reset(Loop *self)
+Loop_fork(Loop *self)
 {
     ev_loop_fork(self->loop);
     Py_RETURN_NONE;
@@ -314,8 +314,8 @@ Loop_stop(Loop *self, PyObject *args)
 
 /* LoopType.tp_methods */
 static PyMethodDef Loop_tp_methods[] = {
-    {"reset", (PyCFunction)Loop_reset,
-     METH_NOARGS, Loop_reset_doc},
+    {"fork", (PyCFunction)Loop_fork,
+     METH_NOARGS, Loop_fork_doc},
     {"update", (PyCFunction)Loop_update,
      METH_NOARGS, Loop_update_doc},
     {"suspend", (PyCFunction)Loop_suspend,
