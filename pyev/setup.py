@@ -63,7 +63,7 @@ if curr_py_ver < min_py_vers[int(curr_py_ver[0])]:
                      "Python3 >= {0[3]}".format(min_py_vers))
 
 
-pyev_version = "0.8.0"
+pyev_version = "0.8.1"
 pyev_description = open(os.path.abspath("README.txt"), "r").read()
 libev_dir = os.path.abspath("src/libev")
 libev_configure_ac = open(os.path.join(libev_dir, "configure.ac"), "r").read()

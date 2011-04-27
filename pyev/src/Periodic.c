@@ -2,7 +2,7 @@
 * utilities
 *******************************************************************************/
 
-#define PYEV_MININTERVAL (double)1/8192
+static const double PYEV_MININTERVAL = (double)1/8192;
 
 
 /* set the Periodic */
