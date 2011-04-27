@@ -2,7 +2,7 @@ Todo
 ====
 
 * provide more meaningful examples.
-* make a unittest test suite out of my local ones.
+* make a unittest test suite (need help!).
 
 
 

@@ -55,7 +55,7 @@ from distutils.core import setup, Extension
 
 curr_py_ver = platform.python_version()
 min_py_vers = {
-               2: "2.6.6",
+               2: "2.6.5",
                3: "3.1.2",
               }
 if curr_py_ver < min_py_vers[int(curr_py_ver[0])]:
