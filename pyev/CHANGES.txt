@@ -6,6 +6,17 @@ Todo
 
 
 
+Release 0.8.1-4.04
+==================
+
+misc:
+
+- Issue #11: support Python 2.6.5.
+- Issue #12: remove stray ansi char in utf-8 source files (damn windows!).
+- fix bad constant definition in Periodic.c (I am officially an idiot!).
+
+
+
 Release 0.8.0-4.04
 ==================
 
