@@ -1,6 +1,6 @@
 /*******************************************************************************
 *
-* Copyright (c) 2009 - 2011 Malek Hadj-Ali
+* Copyright (c) 2009 - 2012 Malek Hadj-Ali
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
