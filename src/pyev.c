@@ -510,6 +510,8 @@ static PyMethodDef pyev_m_methods[] = {
 #endif
     {"abi_version", (PyCFunction)pyev_abi_version,
      METH_NOARGS, pyev_abi_version_doc},
+    {"version", (PyCFunction)pyev_abi_version,
+     METH_NOARGS, pyev_abi_version_doc},
     {NULL} /* Sentinel */
 };
 
