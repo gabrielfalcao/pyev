@@ -65,7 +65,7 @@ setup(
       url="http://code.google.com/p/pyev/",
       download_url="http://code.google.com/p/pyev/downloads/list",
       description="Python libev interface.",
-      long_description=open(abspath("README.txt"), "r").read(),
+      long_description=open(abspath("README.md"), "r").read(),
       author="Malek Hadj-Ali",
       author_email="lekmalek@gmail.com",
       license="GNU General Public License v3 (GPLv3)",
