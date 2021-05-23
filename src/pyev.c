@@ -318,7 +318,7 @@ pyev_allocator(void *ptr, long size)
 
 /* Add a type to a module */
 int
-_PyModule_AddType(PyObject *module, const char *name, PyTypeObject *type)
+_PyModule_Utils_AddType(PyObject *module, const char *name, PyTypeObject *type)
 {
     Py_INCREF(type);
     if (PyModule_AddObject(module, name, (PyObject *)type)) {
@@ -338,12 +338,12 @@ PyType_ReadyWatcher(PyTypeObject *type, PyTypeObject *base)
 
 
 int
-PyModule_AddType(PyObject *module, const char *name, PyTypeObject *type)
+PyModule_Utils_AddType(PyObject *module, const char *name, PyTypeObject *type)
 {
     if (PyType_Ready(type)) {
         return -1;
     }
-    return _PyModule_AddType(module, name, type);
+    return _PyModule_Utils_AddType(module, name, type);
 }
 
 
@@ -354,7 +354,7 @@ PyModule_AddWatcher(PyObject *module, const char *name, PyTypeObject *type,
     if (PyType_ReadyWatcher(type, base)) {
         return -1;
     }
-    return _PyModule_AddType(module, name, type);
+    return _PyModule_Utils_AddType(module, name, type);
 }
 
 
@@ -555,7 +555,7 @@ init_pyev(void)
     /* types and constants */
     if (
         /* loop */
-        PyModule_AddType(pyev, "Loop", &LoopType) ||
+        PyModule_Utils_AddType(pyev, "Loop", &LoopType) ||
         PyModule_AddUnsignedIntMacro(pyev, EVFLAG_AUTO) ||
         PyModule_AddUnsignedIntMacro(pyev, EVFLAG_NOENV) ||
         PyModule_AddUnsignedIntMacro(pyev, EVFLAG_FORKCHECK) ||
